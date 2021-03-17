@@ -11,13 +11,9 @@ Clone the git repository using
 git clone https://github.com/Kardesler-Kodculuk/mbs_backend.git
 ```
 
-or, alternatively with GitHub CLI
-
-```
-gh clone https://github.com/Kardesler-Kodculuk/mbs_backend.git
-```
-
 This will clone the repository to a directory called mbs_backend.
+
+or, alternatively clone it with the GitHub Desktop Client.
 
 Once inside this directory, using npm, you can install the project.
 
