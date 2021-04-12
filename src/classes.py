@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 from datetime import date
 
 
@@ -26,7 +27,7 @@ class User:
     password: str  # Hashed password string.
     email: str
     phone_number: str
-    allowed_pages: list[str]
+    allowed_pages: List[str]
 
 
 @dataclass
