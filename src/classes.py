@@ -26,7 +26,7 @@ class User:
     password: str  # Hashed password string.
     email: str
     phone_number: str
-    allowed_pages: list[str]
+    allowed_pages: List[str]
 
 
 @dataclass
