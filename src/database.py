@@ -34,9 +34,10 @@ class QueryHandler:
             return self.cursor.fetchall()  # Fetch and return the results.
         else:
             self.connection.commit()  # Otherwise commit the results.
-
+ 
 
 global_query_handler = QueryHandler()  # Declaring it in global will let flask threads handle this.
+
 
 
 snake_case = compile(r"[[:<:]][a-z]|(?<=_)[a-z]")  # This pattern captures letters to convert into uppercase.

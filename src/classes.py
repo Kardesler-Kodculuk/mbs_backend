@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
+from typing import List
 from datetime import date
 from typing import List
 from .database import bind_database
