@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 from enum import Enum
-from typing import List
+from typing import List, Union
 from datetime import date
 from typing import List
 from .database import bind_database
@@ -19,22 +19,33 @@ class PageType(Enum):
 
 @bind_database(obj_id_row='user_id')
 @dataclass
-class User:
+class User_:
     """
     Base class that is used for all
         user types.
     """
     user_id: int
-    name: str
+    name_: str
     surname: str
     password: str  # Hashed password string.
     email: str
-    phone_number: str
+
+    def downcast(self) -> Union["Advisor", "Student"]:
+        """
+        Downcast the user object to one of its subtypes.
+
+        :param user: A variable of type user.
+        :return the downcasted object.
+        """
+        possibilities: List[type] = [Advisor, Student]
+        for possibility in possibilities:
+            if possibility.has(self.user_id):  # If user belongs to this class, we can fetch it.
+                return possibility.fetch(self.user_id)
 
 
 @bind_database(obj_id_row='advisor_id')
 @dataclass
-class Advisor(User):
+class Advisor(User_):
     """
     Class holding data on users with
         advisor privileges.
@@ -46,7 +57,7 @@ class Advisor(User):
 
 @bind_database(obj_id_row='jury_id')
 @dataclass
-class Jury(User):
+class Jury(User_):
     """
     Class holding data on users
         with Jury privileges.
@@ -60,7 +71,7 @@ class Jury(User):
 
 @bind_database(obj_id_row='student_id')
 @dataclass
-class Student(User):
+class Student(User_):
     """
     Class holding data on users
         with Student privileges.
@@ -71,7 +82,10 @@ class Student(User):
     program_name: str
     thesis_topic: str
     graduation_status: str
-    jury_tss_decision: str
+
+    @property
+    def advisor(self) -> Advisor:
+        return None
 
 
 @bind_database(obj_id_row='thesis_id')
@@ -90,3 +104,5 @@ class Thesis:
     submission_date: date
     extension_status: str 
     extension_info: str
+
+

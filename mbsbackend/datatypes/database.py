@@ -2,11 +2,15 @@
 This module contains functions and classes that connect to the
     database.
 """
+from os import getenv, remove
+
 from psycopg2.extensions import cursor, connection
 from psycopg2 import connect
-from typing import Optional, Tuple, Callable, Any, Dict, List
+import sqlite3
+from typing import Optional, Tuple, Callable, Any, Dict, List, Union
 from dataclasses import is_dataclass
 from re import compile
+from mbsbackend.server_internals.global_config import GlobalConfig
 
 
 class QueryHandler:
@@ -14,17 +18,16 @@ class QueryHandler:
     Class that encapsulates queries to the underlying
         DBMS.
     """
-    def __init__(self) -> None:
-        self.connection: connection = connect(host="localhost", database="test",
-                                              user="test", password="test")
-        self.cursor: cursor = self.connection.cursor()  # Get the cursor.
+    def __init__(self, conn: Union[connection, sqlite3.Connection], cur: Union[cursor, sqlite3.Cursor]):
+        self.connection = conn
+        self.cursor = cur
 
     def execute_query(self, query: str) -> Optional[tuple]:
         """
         Given a query to execute, execute to query, if
             the query is a SELECT query, fetch the results
             and return them.
-        
+
         :param query: Query to execute.
         :return The results of the fetch statement,
             or None.
@@ -34,28 +37,44 @@ class QueryHandler:
             return self.cursor.fetchall()  # Fetch and return the results.
         else:
             self.connection.commit()  # Otherwise commit the results.
- 
-
-global_query_handler = QueryHandler()  # Declaring it in global will let flask threads handle this.
 
 
-
-snake_case = compile(r"[[:<:]][a-z]|(?<=_)[a-z]")  # This pattern captures letters to convert into uppercase.
-
-
-def _convert_case(field_name: str) -> str:
+class ProductionQueryHandler(QueryHandler):
     """
-    Given a field name, convert it from snake_case (PEP8 standard
-        naming convention) into CamelCase (used in our database).
-
-    :param field_name: field name in snake_case.
-    :return the converted CamelCase row name.
+    Class that encapsulates queries to the underlying
+        DBMS for production, which is PostgreSQL.
     """
-    #  Replace the lowercase letters that should be replaced, for reference,
-    #   this usage of the sub can be seen in: https://stackoverflow.com/a/8934655/6663851
-    row_name = snake_case.sub(lambda match: match.group(1).upper(), field_name)
-    row_name = row_name.replace('_', '')  # Get rid of the _ character as well.
-    return row_name
+    def __init__(self) -> None:
+        conn: connection = connect(getenv("DB_HOST"), database=getenv("DB_DB"),
+                                              user=getenv("DB_USER"), password=getenv("DB_PASS"))
+        cur: cursor = conn.cursor()  # Get the cursor.
+        super().__init__(conn, cur)
+
+
+class TestQueryHandler(QueryHandler):
+    """
+    Class that handles queries in the testing environment.
+    """
+    def __init__(self) -> None:
+        remove("test.db")
+        conn: sqlite3.Connection = sqlite3.connect("test.db", check_same_thread=False)
+        cur: sqlite3.Cursor = conn.cursor()
+        with open("init_test_database.sql") as script_f:  # Initialise the database.
+            cur.executescript(script_f.read())
+        super().__init__(conn, cur)
+
+
+def _locate_query_handler(testing) -> QueryHandler:
+    """
+    Locate the QueryHandler class that will be used.
+    """
+    if testing:
+        return TestQueryHandler()
+    else:
+        return ProductionQueryHandler()
+
+
+global_query_handler = _locate_query_handler(True)  # Declaring it in global will let flask threads handle this.
 
 
 def _stringfy(value: Any) -> str:
@@ -110,13 +129,13 @@ def _generate_inheritance_tree(class_: type) -> Dict[type, List[str]]:
     fields: Dict[type, List[str]] = {}
     ancestors = class_.mro()  # Get the ancestor types of the dataclass.
     ancestors.reverse()  # Reverse to the eldest-first.
-    dataclass_ancestors = [ancestor for ancestor in ancestors if is_dataclass(ancestor)]
+    dataclass_ancestors = [ancestor for ancestor in ancestors if is_dataclass(ancestor) and hasattr(ancestor, "_table_name") and ancestor.__name__ != class_.__name__]
     for ancestor in dataclass_ancestors:
         # All the dataclass ancestors of the
         # descendant must also be database bound.
         fields_ = list(ancestor.__dataclass_fields__.keys())  # Get the names of the fields
         # Fields specific to a descendant class are fields that are not found in the parent class(es).
-        fields[ancestor.__class__] = [field for field in fields_ if field not in parent_fields]
+        fields[ancestor] = [field for field in fields_ if field not in parent_fields]
         parent_fields = fields_.copy()  # Save the original field list to the latest parent field list.
     return fields
 
@@ -152,16 +171,17 @@ def bind_database(obj_id_row: str):
         """
         if not is_dataclass(dataclass_):  # Decorated classes must be dataclasses.
             raise TypeError("Class decorated with bind_database is not a dataclass.")
+        inheritance_ = _generate_inheritance_tree(dataclass_)
+        tab_name = dataclass_.__name__
 
         class DatabaseBound(dataclass_):
             """
             Represents a class that is bound dynamically to a database
                 record, this database is determined by the global_query_handler.
             """
-            _table_inheritance = _generate_inheritance_tree(dataclass_.__class__)  # Generate the inheritance tree.
-            _changed_fields = {}  # Create a dictionary record changed field values over object lifetime.
-            _table_name = dataclass_.__class__.__name__  # Construct the table_name.
-            _obj_id_row = _convert_case(obj_id_row)  # The first field is also the ID.
+            _table_inheritance = inheritance_  # Generate the inheritance tree.
+            _table_name = tab_name  # Construct the table_name.
+            _obj_id_row = obj_id_row  # The first field is also the ID.
 
             def _partition_changed_fields(self: "DatabaseBound") -> Dict["DatabaseBound", Dict["DatabaseBound", Any]]:
                 """
@@ -190,6 +210,8 @@ def bind_database(obj_id_row: str):
                 """
                 Cache the attributes being set before setting them.
                 """
+                if "changed_fields" not in self.__dict__:
+                    self.__dict__["changed_fields"] = {}
                 self.__dict__["changed_fields"][key] = value  # Add it to a dictionary of updated names.
                 self.__dict__[key] = value
 
@@ -205,7 +227,7 @@ def bind_database(obj_id_row: str):
                 alterations_per_type = self._partition_changed_fields()
                 for type_ in alterations_per_type:  # For each alteration per table
                     alterations = alterations_per_type[type_]  # Get the alterations dictionary for this table.
-                    alteration_tuple = tuple((_convert_case(row_name), _stringfy(value))
+                    alteration_tuple = tuple((row_name, _stringfy(value))
                                              for row_name, value in alterations.items()) # Generate a tuple of pairs
                     # that denote changes in the fields with their new values.
                     # Generate the set clause.
@@ -215,6 +237,14 @@ def bind_database(obj_id_row: str):
                                                        f"SET {set_clause}"
                                                        f"WHERE {type_.obj_id_row} = {self.__getattribute__(obj_id_row)}")
                 self._changed_fields.clear()  # Reset the changed fields.
+
+            @classmethod
+            def has(cls, object_id: int) -> bool:
+                where_clause = f"{cls._obj_id_row} = {object_id}"
+                query = f"SELECT * FROM {cls._table_name} WHERE {where_clause}"
+                if len(global_query_handler.execute_query(query)) > 0:
+                    return True
+                return False
 
             @classmethod
             def fetch(cls, object_id: int) -> "DatabaseBound":
@@ -227,11 +257,43 @@ def bind_database(obj_id_row: str):
                     record with the given object_id.
                 """
                 values = []  # Values that will be used to initialise the object.
+                where_clause = f"{cls._obj_id_row} = {object_id}"
+                query = f"SELECT * FROM {cls._table_name} WHERE {where_clause}"
+                values.extend(*global_query_handler.execute_query(query))
                 for type_ in cls._table_inheritance:  # For each antecedent dataclass type, query the database for values.
                     where_clause = f"{type_._obj_id_row} = {object_id}"
                     values.extend(*global_query_handler.execute_query(f"SELECT * FROM {type_._table_name}"
                                                                       f" WHERE {where_clause}"))
-                return cls.__init__(*values)  # Initialise an object with these args.
+                return cls(*values)  # Initialise an object with these args.
+
+            @classmethod
+            def fetch_where(cls, criteria: str, value: str) -> List["DatabaseBound"]:
+                """
+                Get members of this class (if any) according to the given
+                    criteria.
+
+                :param criteria: Column name by whose value to results will
+                    be filtered.
+                :param value: Value of the column name.
+                :return A list of database bound class instances, possibly
+                    empty, that fit the criteria given.
+                """
+                object_ids: List[int] = []  # This is where ids of the objects will go.
+                if criteria in cls.__dataclass_fields__:
+                    query = f"SELECT {cls._obj_id_row} FROM {cls._table_name}" \
+                            f" WHERE {criteria} = " + _stringfy(value)
+                    object_ids.extend(*global_query_handler.execute_query(query))
+                    return [cls.fetch(object_id) for object_id in object_ids]  # Return all objects that fit this category.
+
+                for type_ in cls._table_inheritance: # It is probable that the criteria is not within this
+                    # Class directly but in one of its parent classes, we need to check them all.
+                    if criteria in cls._table_inheritance[type_]:  # If the criteria is in this table.
+                        # If criteria appears at last in this parent type, query this parent type.
+                        object_ids.extend(*global_query_handler.execute_query(f"SELECT {type_._obj_id_row}"
+                                                                              f"FROM {type_._table_name}"
+                                                                              f"WHERE {criteria} = {_stringfy(value)}"))
+                        break  # And exit loop.
+                return [cls.fetch(object_id) for object_id in object_ids]  # Return all objects that fit this category.
 
             def create(self) -> None:
                 """
@@ -239,11 +301,11 @@ def bind_database(obj_id_row: str):
                 """
                 for type_ in self._table_inheritance:  # For each antecendent dataclass type,
                     rows = self._table_inheritance[type_]  # Get the row names.
-                    field_values = [_stringfy(self.__getattribute__(_convert_case(row))) for row in rows]  # Get the values
+                    field_values = [_stringfy(self.__getattribute__(row)) for row in rows]  # Get the values
                     row_clause = ', '.join(rows)
                     values_clause = ', '.join(field_values)
                     global_query_handler.execute_query(f"INSERT INTO {type_._table_name}({row_clause})"
-                                                       f" WHERE VALUES({values_clause})")
+                                                       f" VALUES({values_clause})")
                     # And insert the record one by one starting from the most antecedent parent.
         return DatabaseBound
     return wrapper
