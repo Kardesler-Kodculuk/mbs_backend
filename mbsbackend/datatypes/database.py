@@ -2,6 +2,7 @@
 This module contains functions and classes that connect to the
     database.
 """
+from logging import log
 from os import getenv, remove
 from os.path import exists
 import sqlite3
@@ -238,8 +239,8 @@ def bind_database(obj_id_row: str):
                 values.extend(*global_query_handler.execute_query(query))
                 for type_ in cls._table_inheritance:  # For each antecedent dataclass type, query the database for values.
                     where_clause = f"{type_._obj_id_row} = {object_id}"
-                    values.extend(*global_query_handler.execute_query(f"SELECT * FROM {type_._table_name}"
-                                                                      f" WHERE {where_clause}"))
+                    values = [*global_query_handler.execute_query(f"SELECT * FROM {type_._table_name} WHERE {where_clause}")[0]] + values  # Add the superclass attributes to the end.
+                print(values)
                 return cls(*values)  # Initialise an object with these args.
 
             @classmethod

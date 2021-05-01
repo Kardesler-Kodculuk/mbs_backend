@@ -82,6 +82,7 @@ class Student(User_):
     program_name: str
     thesis_topic: str
     graduation_status: str
+    jury_tss_decision: str
 
     @property
     def advisor(self) -> Advisor:

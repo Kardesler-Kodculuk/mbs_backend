@@ -1,12 +1,13 @@
 expected_student = {
   "role": "student",
-  "username": "Scott Aaronson",
+  "username": "Scott",
   "student": {
-    "id": 0,
-    "name": "Scott",
+    "user_id": 0,
+    "student_id": 0,
+    "name_": "Scott",
     "surname": "Aaronson",
     "email": "studenttest@std.iyte.edu.tr",
-    "is_approved": False,
+    "is_approved": 0,
     "semester": 2,
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",

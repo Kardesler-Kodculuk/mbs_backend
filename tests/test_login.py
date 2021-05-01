@@ -53,6 +53,7 @@ class TestLoginStudentNoAdvisor(flask_unittest.ClientTestCase):
 
     def setUp(self, client: FlaskClient) -> None:
         client.post('/jwt', json={"username": "studenttest@std.iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
 
     def tearDown(self, client: FlaskClient) -> None:
         client.delete('/jwt')  # Logout.
