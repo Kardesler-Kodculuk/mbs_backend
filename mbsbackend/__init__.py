@@ -11,7 +11,7 @@ from flask_jwt_extended import JWTManager, jwt_required, current_user, create_ac
 from dataclasses import asdict
 from mbsbackend.datatypes.classes import User_, Student, Advisor
 from mbsbackend.server_internals.authentication import authenticate, identity
-from mbsbackend.server_internals.verificiaton import json_required
+from mbsbackend.server_internals.verification import json_required
 
 
 def create_app() -> Flask:
