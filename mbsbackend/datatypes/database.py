@@ -240,7 +240,6 @@ def bind_database(obj_id_row: str):
                 for type_ in cls._table_inheritance:  # For each antecedent dataclass type, query the database for values.
                     where_clause = f"{type_._obj_id_row} = {object_id}"
                     values = [*global_query_handler.execute_query(f"SELECT * FROM {type_._table_name} WHERE {where_clause}")[0]] + values  # Add the superclass attributes to the end.
-                print(values)
                 return cls(*values)  # Initialise an object with these args.
 
             @classmethod
