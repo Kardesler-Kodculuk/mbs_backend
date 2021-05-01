@@ -3,14 +3,11 @@ This module contains functions and classes that connect to the
     database.
 """
 from os import getenv, remove
-
-from psycopg2.extensions import cursor, connection
-from psycopg2 import connect
+from os.path import exists
 import sqlite3
 from typing import Optional, Tuple, Callable, Any, Dict, List, Union
 from dataclasses import is_dataclass
 from re import compile
-from mbsbackend.server_internals.global_config import GlobalConfig
 
 
 class QueryHandler:
@@ -18,7 +15,7 @@ class QueryHandler:
     Class that encapsulates queries to the underlying
         DBMS.
     """
-    def __init__(self, conn: Union[connection, sqlite3.Connection], cur: Union[cursor, sqlite3.Cursor]):
+    def __init__(self, conn: Union[sqlite3.Connection], cur: Union[sqlite3.Cursor]):
         self.connection = conn
         self.cursor = cur
 
@@ -39,42 +36,21 @@ class QueryHandler:
             self.connection.commit()  # Otherwise commit the results.
 
 
-class ProductionQueryHandler(QueryHandler):
-    """
-    Class that encapsulates queries to the underlying
-        DBMS for production, which is PostgreSQL.
-    """
-    def __init__(self) -> None:
-        conn: connection = connect(getenv("DB_HOST"), database=getenv("DB_DB"),
-                                              user=getenv("DB_USER"), password=getenv("DB_PASS"))
-        cur: cursor = conn.cursor()  # Get the cursor.
-        super().__init__(conn, cur)
-
-
 class TestQueryHandler(QueryHandler):
     """
     Class that handles queries in the testing environment.
     """
-    def __init__(self) -> None:
-        remove("test.db")
-        conn: sqlite3.Connection = sqlite3.connect("test.db", check_same_thread=False)
+    def __init__(self, db_name) -> None:
+        is_init = exists(db_name)  # Check if the database was initialised.
+        conn: sqlite3.Connection = sqlite3.connect(db_name, check_same_thread=False)
         cur: sqlite3.Cursor = conn.cursor()
-        with open("init_test_database.sql") as script_f:  # Initialise the database.
-            cur.executescript(script_f.read())
+        if not is_init:  # If the database was not previously initalised.
+            with open("init_test_database.sql") as script_f:  # Initialise the database.
+                cur.executescript(script_f.read())
         super().__init__(conn, cur)
 
 
-def _locate_query_handler(testing) -> QueryHandler:
-    """
-    Locate the QueryHandler class that will be used.
-    """
-    if testing:
-        return TestQueryHandler()
-    else:
-        return ProductionQueryHandler()
-
-
-global_query_handler = _locate_query_handler(True)  # Declaring it in global will let flask threads handle this.
+global_query_handler = TestQueryHandler(getenv('FLASK_DB_NAME', 'mbs.db'))  # Declaring it in global will let flask threads handle this.
 
 
 def _stringfy(value: Any) -> str:
@@ -282,7 +258,9 @@ def bind_database(obj_id_row: str):
                 if criteria in cls.__dataclass_fields__:
                     query = f"SELECT {cls._obj_id_row} FROM {cls._table_name}" \
                             f" WHERE {criteria} = " + _stringfy(value)
-                    object_ids.extend(*global_query_handler.execute_query(query))
+                    matches = global_query_handler.execute_query(query)
+                    if matches:  # Check if there are any matches with the given criteria.
+                        object_ids.extend(*matches)   # Extend the object_ids if there are any matches.
                     return [cls.fetch(object_id) for object_id in object_ids]  # Return all objects that fit this category.
 
                 for type_ in cls._table_inheritance: # It is probable that the criteria is not within this

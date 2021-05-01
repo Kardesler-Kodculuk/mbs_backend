@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS Student (
     program_name TEXT,
     thesis_topic TEXT,
     graduation_status TEXT,
+    jury_tss_decision TEXT,
     FOREIGN KEY(student_id) REFERENCES User_(user_id)
 );
 
@@ -34,4 +35,4 @@ CREATE TABLE IF NOT EXISTS Advisor (
 );
 
 INSERT INTO USER_ VALUES (0, 'Scott', 'Aaronson', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest@std.iyte.edu.tr');
-INSERT INTO Student VALUES (0, FALSE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA');
+INSERT INTO Student VALUES (0, FALSE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
