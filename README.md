@@ -1,6 +1,10 @@
 # MBS Backend
 
 [![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/release/python-370/)
+[![build](https://github.com/Kardesler-Kodculuk/mbs_backend/actions/workflows/python-app.yml/badge.svg)](https://github.com/Kardesler-Kodculuk/mbs_backend/actions/workflows/python-app.yml)
+[![Read Documentation](https://img.shields.io/badge/Documentation-API%20Reference-informational?logo=flask)](https://mbsbackend.docs.apiary.io/#)
+
+
 
 This is the Backend Portion of the MBS Project. It is written with the Framework, using Python3.9, you will need Python3.9 installed
 and must have added the scripts to the Path, in linux, this is handled simply by:
