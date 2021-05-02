@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import List, Union, Optional
 from datetime import date
@@ -10,6 +10,13 @@ class StudentAlreadyHasAdvisorException(Exception):
     """
     Raised when attempted to access recommended advisors
         of a student but the student already has an advisor.
+    """
+    pass
+
+
+class InvalidUserClassException(Exception):
+    """
+    Raised when the attempted class is not a user class.
     """
     pass
 
@@ -27,25 +34,25 @@ class Instructor:
     advisor_id: int
 
 
-@bind_database(obj_id_row='id_')
+@bind_database(obj_id_row='recommendation_id')
 @dataclass
 class Recommended:
     """
     Indicates that an advisor was
         recommended to a student.
     """
-    id_: int
+    recommendation_id: int
     student_id: int
     advisor_id: int
 
-@bind_database(obj_id_row='id_')
+@bind_database(obj_id_row='proposal_id')
 @dataclass
 class Proposal:
     """
     Indicates a student that has proposed
         to an advisor.
     """
-    id_: int
+    proposal_id: int
     student_id: int
     advisor_id: int
 
@@ -99,11 +106,11 @@ class Advisor(User_):
     doctoral_specialty: str
 
     @property
-    def proposals(self) -> List["Student"]:
-        students = []
+    def proposals(self) -> List[Proposal]:
+        proposals = []
         if Proposal.has_where('advisor_id', self.advisor_id):  # Check if any students proposed.
-            students.extend(*Proposal.fetch_where('advisor_id', self.advisor_id))  # Fetch them.
-        return students
+            proposals.extend(Proposal.fetch_where('advisor_id', self.advisor_id))  # Fetch them.
+        return proposals
 
 
 @bind_database(obj_id_row='jury_id')
@@ -129,6 +136,7 @@ class Student(User_):
     """
     student_id: int
     is_approved: bool
+    has_proposed: bool
     semester: int
     program_name: str
     thesis_topic: str
@@ -147,13 +155,13 @@ class Student(User_):
         return None  # Otherwise return None.
 
     @property
-    def recommendations(self) -> List[Advisor]:
+    def recommendations(self) -> List[Recommended]:
         if self.advisor:
             raise StudentAlreadyHasAdvisorException
-        recommendations: List[Advisor] = []
+        recommendations: List[Recommended] = []
         if Recommended.has_where('student_id', self.student_id):  # If any recommendation available.
             # Add them to the list.
-            recommendations.extend(*Recommended.fetch_where('student_id', self.student_id))
+            recommendations.extend(Recommended.fetch_where('student_id', self.student_id))
         return recommendations  # Return the list.
 
 
@@ -173,5 +181,23 @@ class Thesis:
     submission_date: date
     extension_status: str 
     extension_info: str
+
+
+def get_user(class_type: type, user_id: int) -> Optional[dict]:
+    """
+    Get a user's information excluding the password.
+
+    :param class_type: Class of the user, student or advisor.
+    :param user_id: ID of the user.
+    :return The user information as a dictionary or None if no such user exists.
+    """
+    if class_type not in [Student, Advisor]:
+        raise InvalidUserClassException
+    if not class_type.has(user_id):
+        return None
+    user_ = class_type.fetch(user_id)
+    dict_ = asdict(user_)  # Get the user information as a dictionary.
+    del dict_['password']  # Delete password information.
+    return dict_
 
 

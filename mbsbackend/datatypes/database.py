@@ -33,8 +33,7 @@ class QueryHandler:
         self.cursor.execute(query)
         if "select" in query.lower():  # If this is a select query.
             return self.cursor.fetchall()  # Fetch and return the results.
-        else:
-            self.connection.commit()  # Otherwise commit the results.
+        self.connection.commit()  # Otherwise commit the results.
 
 
 class TestQueryHandler(QueryHandler):
@@ -93,6 +92,24 @@ Finally, I would like to mention that this approach is similar to:
 """
 
 
+def _generate_unique_fields(class_: type, inheritance_tree: Dict[type, List[str]]) -> List[str]:
+    """
+    Generate a list of fields unique to this class that it did not inherit
+        from its parent dataclasses.
+
+    :param class_: Class to calculate this information for.
+    :param inheritance_tree: Inheritance table generated for this class.
+    :return the list of fields unique to this class.
+    """
+    assert is_dataclass(class_)
+    fields = class_.__dataclass_fields__.keys()  # Get the fields, unique ones and ones that are inherited.
+    super_fields = []
+    for super_fields_ in inheritance_tree.values():  # Get all the fields in the superclasses.
+        super_fields.extend(super_fields_)  # And consolidate them into a single list.
+    fields = [*filter(lambda field: field not in super_fields, fields)]  # Then compare them against our fields.
+    return fields  # Remaining ones are the unique fields.
+
+
 def _generate_inheritance_tree(class_: type) -> Dict[type, List[str]]:
     """
     Given a dataclass categorise its field names based on which superclass
@@ -149,6 +166,7 @@ def bind_database(obj_id_row: str):
         if not is_dataclass(dataclass_):  # Decorated classes must be dataclasses.
             raise TypeError("Class decorated with bind_database is not a dataclass.")
         inheritance_ = _generate_inheritance_tree(dataclass_)
+        unique_ = _generate_unique_fields(dataclass_, inheritance_)
         tab_name = dataclass_.__name__
 
         class DatabaseBound(dataclass_):
@@ -157,6 +175,7 @@ def bind_database(obj_id_row: str):
                 record, this database is determined by the global_query_handler.
             """
             _table_inheritance = inheritance_  # Generate the inheritance tree.
+            _unique_fields = unique_  # Fields unique to this class.
             _table_name = tab_name  # Construct the table_name.
             _obj_id_row = obj_id_row  # The first field is also the ID.
 
@@ -178,18 +197,20 @@ def bind_database(obj_id_row: str):
                 """
                 changed_fields: Dict[str, Any] = self._changed_fields
                 partitioned_changed_fields = {
-                    type_: {key: value for key, value in changed_fields if key in self._table_inheritance[type_]}
+                    type_: {key: value for key, value in changed_fields.items() if key in self._table_inheritance[type_]}
                     for type_ in self._table_inheritance.keys()
                 }  # Partition the fields according to which parent they appear in.
+                partitioned_changed_fields[self.__class__] = {key: value for key, value in changed_fields.items() if key in self._unique_fields}
+                # We also added the fields unique to this class.
                 return partitioned_changed_fields
 
             def __setattr__(self, key, value):
                 """
                 Cache the attributes being set before setting them.
                 """
-                if "changed_fields" not in self.__dict__:
-                    self.__dict__["changed_fields"] = {}
-                self.__dict__["changed_fields"][key] = value  # Add it to a dictionary of updated names.
+                if "_changed_fields" not in self.__dict__:
+                    self.__dict__["_changed_fields"] = {}
+                self.__dict__["_changed_fields"][key] = value  # Add it to a dictionary of updated names.
                 self.__dict__[key] = value
 
             def update(self) -> None:
@@ -208,11 +229,11 @@ def bind_database(obj_id_row: str):
                                              for row_name, value in alterations.items()) # Generate a tuple of pairs
                     # that denote changes in the fields with their new values.
                     # Generate the set clause.
-                    set_clause = ' '.join(f"{row_name} = {value}" for row_name, value in alteration_tuple)
+                    set_clause = ', '.join(f"{row_name} = {value}" for row_name, value in alteration_tuple)
                     # Update the object.
                     global_query_handler.execute_query(f"UPDATE {type_._table_name}"
-                                                       f"SET {set_clause}"
-                                                       f"WHERE {type_.obj_id_row} = {self.__getattribute__(obj_id_row)}")
+                                                       f" SET {set_clause}"
+                                                       f" WHERE {type_._obj_id_row} = {self.__getattribute__(self._obj_id_row)}")
                 self._changed_fields.clear()  # Reset the changed fields.
 
             @classmethod
@@ -287,16 +308,17 @@ def bind_database(obj_id_row: str):
                             f" WHERE {criteria} = " + _stringfy(value)
                     matches = global_query_handler.execute_query(query)
                     if matches:  # Check if there are any matches with the given criteria.
-                        object_ids.extend(*matches)   # Extend the object_ids if there are any matches.
+                        object_ids.extend([match[0] for match in matches])   # Extend the object_ids if there are any matches.
                     return [cls.fetch(object_id) for object_id in object_ids]  # Return all objects that fit this category.
 
                 for type_ in cls._table_inheritance: # It is probable that the criteria is not within this
                     # Class directly but in one of its parent classes, we need to check them all.
                     if criteria in cls._table_inheritance[type_]:  # If the criteria is in this table.
                         # If criteria appears at last in this parent type, query this parent type.
-                        object_ids.extend(*global_query_handler.execute_query(f"SELECT {type_._obj_id_row}"
-                                                                              f"FROM {type_._table_name}"
-                                                                              f"WHERE {criteria} = {_stringfy(value)}"))
+                        matches = global_query_handler.execute_query(f"SELECT {type_._obj_id_row}"
+                                                                     f"FROM {type_._table_name}"
+                                                                     f"WHERE {criteria} = {_stringfy(value)}")
+                        object_ids.extend([match[0] for match in matches])
                         break  # And exit loop.
                 return [cls.fetch(object_id) for object_id in object_ids]  # Return all objects that fit this category.
 
@@ -312,6 +334,14 @@ def bind_database(obj_id_row: str):
                     global_query_handler.execute_query(f"INSERT INTO {type_._table_name}({row_clause})"
                                                        f" VALUES({values_clause})")
                     # And insert the record one by one starting from the most antecedent parent.
+
+            def delete(self) -> None:
+                """
+                Delete this object from the bound database. This only works
+                    on DataBound objects that have no superclasses in the
+                    database.
+                """
+                global_query_handler.execute_query(f"DELETE FROM {self._table_name} WHERE {self._obj_id_row} = {getattr(self, self._obj_id_row)}")
         return DatabaseBound
     return wrapper
 

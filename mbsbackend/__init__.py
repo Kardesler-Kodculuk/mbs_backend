@@ -9,8 +9,9 @@ from flask import Flask, g, request, jsonify
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
-from mbsbackend.datatypes.classes import User_, Student, Advisor
+from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user
 from mbsbackend.server_internals.authentication import authenticate, identity
+from mbsbackend.server_internals.consants import forbidden_fields
 from mbsbackend.server_internals.verification import json_required
 
 
@@ -112,4 +113,101 @@ def create_app() -> Flask:
         else:
             return "Invalid user type", 400
         return jsonify(user_info), 200
+
+    @app.route('/students/<student_id>', methods=["GET"])
+    @jwt_required()
+    def get_student_information(student_id: str) -> Tuple[str, int]:
+        """
+        Get user information of a specific student.
+        """
+        student = get_user(Student, int(student_id))
+        if student is None:
+            return jsonify({'msg': 'Student not found.'}), 400
+        return jsonify(student), 200
+
+    @app.route('/students/<student_id>', methods=["PATCH"])
+    @jwt_required()
+    def update_student_information(student_id: str) -> Tuple[str, int]:
+        """
+        Update information on a student, given that the student is the
+            current user.
+
+        TODO: In the future, this endpoint will support advisor doing changes.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not isinstance(user, Student) and user.student_id != student_id:
+            return jsonify({"msg": "Unauthorised"}), 401
+        payload = request.json
+        acceptable_fields = [field for field in payload if
+                             field not in forbidden_fields["Student"] and field in Student.__dataclass_fields__]
+        for field in acceptable_fields:
+            setattr(user, field, payload[field])  # Update the field of the user.
+        user.update()  # Update it in the database.
+        return jsonify(get_user(Student, user.user_id)), 200
+
+    @app.route('/advisors/<advisor_id>', methods=["GET"])
+    @jwt_required()
+    def get_advisor_information(advisor_id: str) -> Tuple[str, int]:
+        """
+        Get user information about a specific advisor.
+        """
+        advisor = get_user(Advisor, int(advisor_id))
+        if advisor is None:
+            return jsonify({"msg": 'Advisor not found.'}), 400
+        return jsonify(advisor), 200
+
+    @app.route('/recommendations', methods=['GET'])
+    @jwt_required()
+    def get_recommendations() -> Tuple[str, int]:
+        """
+        Get the recommendations (advisor recommendations) for
+            the currently logged in Student user.
+        """
+        student = current_user.downcast()
+        if not isinstance(student, Student):
+            return jsonify({"msg": "Only the student may have recommendations"}), 403
+        elif student.has_proposed:
+            return jsonify({"msg": "Already proposed to an advisor"}), 409
+        recommendations = student.recommendations
+        if not recommendations:
+            return jsonify({"msg": "No recommended advisors found."}), 404
+        # If there are recommendations, convert them to dictionaries and return them as JSON.
+        return jsonify([asdict(recommendation) for recommendation in recommendations]), 200
+
+    @app.route('/proposals', methods=['GET'])
+    @jwt_required()
+    def get_proposals() -> Tuple[str, int]:
+        """
+        Get a list of proposals made to this Advisor user
+            that is currently logged in.
+        """
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):  # If the current user is not an advisor.
+            return jsonify({"msg": "Only the advisors can see their proposals."}), 403
+        proposals = advisor.proposals
+        return jsonify([asdict(proposal) for proposal in proposals]), 200
+
+    @app.route('/proposals/<proposal_id>', methods=['DELETE'])
+    @jwt_required()
+    def reject_proposal(proposal_id: str) -> Tuple[str, int]:
+        """
+        Reject a proposal by deleting it from the
+            database. This also turns the student's
+            has_proposed into false.
+        """
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):  # If the current user is not an advisor.
+            return jsonify({"msg": "Only the advisors can see their proposals."}), 403
+        proposal = Proposal.has(proposal_id) and Proposal.fetch(proposal_id)
+        if not proposal:
+            return jsonify({"msg": "Proposal deleted."}), 204  # Since DELETE is idempotent, this is alright.
+        if not proposal.advisor_id == advisor.advisor_id:
+            return jsonify({"msg": "You aren't authorised for this."}), 401
+        proposal.delete()
+        student = Student.fetch(proposal.student_id)
+        student.has_proposed = False
+        student.update()
+        return "", 204
+
     return app
