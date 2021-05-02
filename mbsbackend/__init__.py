@@ -97,6 +97,7 @@ def create_app() -> Flask:
             user_info['username'] = user_info['student']['name_']  # Remove in Production. Backward Compatibility.
             del user_info['student']['password']  # We should not let client see the hash.
             user_info['advisor'] = asdict(user.advisor)
+            del user_info['advisor']['password']  # Likewise, the client should definetly not see this hash.
         elif isinstance(user, Student) and not user.advisor:
             user_info['role'] = 'student'
             user_info['student'] = asdict(user)

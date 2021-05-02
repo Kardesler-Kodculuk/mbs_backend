@@ -20,7 +20,7 @@ class QueryHandler:
         self.connection = conn
         self.cursor = cur
 
-    def execute_query(self, query: str) -> Optional[tuple]:
+    def execute_query(self, query: str) -> Optional[list]:
         """
         Given a query to execute, execute to query, if
             the query is a SELECT query, fetch the results
@@ -66,7 +66,7 @@ def _stringfy(value: Any) -> str:
     """
     if isinstance(value, str):
         value = f"'{value}'"  # Add the appropriate quotes.
-    return value
+    return str(value)
 
 
 """
@@ -246,7 +246,8 @@ def bind_database(obj_id_row: str):
                 try:
                     if len(global_query_handler.execute_query(query)) > 0:
                         return True
-                finally:
+                    return False
+                except:
                     return False
 
             @classmethod

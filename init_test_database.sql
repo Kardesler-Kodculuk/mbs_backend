@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS Proposal (
  */
 INSERT INTO USER_ VALUES (0, 'Scott', 'Aaronson', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest@std.iyte.edu.tr');
 INSERT INTO Student VALUES (0, FALSE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
-INSERT INTO USER_ VALUES (1, 'Kathleen', 'Booth', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'advisortest@std.iyte.edu.tr');
+INSERT INTO USER_ VALUES (1, 'Kathleen', 'Booth', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'advisortest@iyte.edu.tr');
 INSERT INTO Advisor VALUES (1, 'Computer Engineering', 'Systems Programming');
 INSERT INTO Instructor(student_id, advisor_id) VALUES (0, 1);
 
@@ -72,6 +72,6 @@ INSERT INTO Instructor(student_id, advisor_id) VALUES (0, 1);
 /**
   This is a student without an advisor, but she is recommended one.
  */
-INSERT INTO User_ VALUES (2, 'Barbara', 'Liskov', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest2@std.iyte.edu.tr')
+INSERT INTO User_ VALUES (2, 'Barbara', 'Liskov', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest2@std.iyte.edu.tr');
 INSERT INTO Student VALUES (2, FALSE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
 INSERT INTO Recommended(student_id, advisor_id) VALUES (2, 1);

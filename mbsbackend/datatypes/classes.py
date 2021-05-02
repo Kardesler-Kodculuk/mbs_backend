@@ -143,7 +143,7 @@ class Student(User_):
             otherwise return None.
         """
         if Instructor.has_where('student_id', self.student_id):  # Checks if the relationship exists.
-            return Instructor.fetch_where('student_id', self.student_id)
+            return Advisor.fetch(Instructor.fetch_where('student_id', self.student_id)[0].advisor_id)
         return None  # Otherwise return None.
 
     @property
