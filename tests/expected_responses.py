@@ -8,6 +8,7 @@ expected_student = {
     "surname": "Liskov",
     "email": "studenttest2@std.iyte.edu.tr",
     "is_approved": 0,
+    "has_proposed": 0,
     "semester": 2,
     "program_name": "Computer Engineering",
     "thesis_topic": None,
@@ -40,6 +41,7 @@ expected_student_advisor = {
     "surname": "Aaronson",
     "email": "studenttest@std.iyte.edu.tr",
     "is_approved": 0,
+    "has_proposed": 1,
     "semester": 2,
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
@@ -56,3 +58,29 @@ expected_student_advisor = {
     "doctoral_specialty": "Systems Programming"
   }
 }
+
+expected_student_get_0 = {
+    "user_id": 0,
+    "student_id": 0,
+    "name_": "Scott",
+    "surname": "Aaronson",
+    "email": "studenttest@std.iyte.edu.tr",
+    "is_approved": 0,
+    "has_proposed": 1,
+    "semester": 2,
+    "program_name": "Computer Engineering",
+    "thesis_topic": "Graph Visualisation",
+    "graduation_status": "NA",
+    "jury_tss_decision": "NA"
+}
+
+expected_advisor_get_1 = {
+    "user_id": 1,
+    "advisor_id": 1,
+    "name_": "Kathleen",
+    "surname": "Booth",
+    "email": "advisortest@iyte.edu.tr",
+    "department": "Computer Engineering",
+    "doctoral_specialty": "Systems Programming"
+}
+

@@ -9,7 +9,7 @@ from flask import Flask, g, request, jsonify
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
-from mbsbackend.datatypes.classes import User_, Student, Advisor
+from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.verification import json_required
 
@@ -112,4 +112,42 @@ def create_app() -> Flask:
         else:
             return "Invalid user type", 400
         return jsonify(user_info), 200
+
+    @app.route('/students/<student_id>', methods=["PATCH"])
+    @jwt_required()
+    def update_student_information(student_id: str) -> Tuple[str, int]:
+        """
+        Patch information of a specific student.
+
+        :param student_id: ID of that specific student.
+        """
+        user: User_ = User_.fetch(current_user.user_id)
+        if user.user_id != student_id and not Student.has(student_id):
+            # TODO: In the next release, advisor can edit some of this too.
+            return jsonify({"msg": "Must be the student to change its own."}), 401
+        user = user.downcast()  # Downcast this to a student.
+        for field in request.json:
+            if field in ['password', 'student_id'] or not hasattr(user, field):
+                return jsonify({"msg": "No such field."}, 400)
+            setattr(user, field, request.json[field])  # Just update the fields.
+        rv = asdict(user)
+        del rv['password']
+        return jsonify(rv), 200  # Return the updated student object.
+
+    @app.route('/students/<student_id>', methods=["GET"])
+    @jwt_required()
+    def get_student_information(student_id: str) -> Tuple[str, int]:
+        student = get_user(Student, int(student_id))
+        if student is None:
+            return jsonify({'msg': 'Student not found.'}), 400
+        return jsonify(student), 200
+
+    @app.route('/advisors/<advisor_id>', methods=["GET"])
+    @jwt_required()
+    def get_advisor_information(advisor_id: str) -> Tuple[str, int]:
+        advisor = get_user(Advisor, int(advisor_id))
+        if advisor is None:
+            return jsonify({"msg": 'Advisor not found.'}), 400
+        return jsonify(advisor), 200
+
     return app

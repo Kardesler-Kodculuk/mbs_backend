@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, asdict
 from enum import Enum
 from typing import List, Union, Optional
 from datetime import date
@@ -10,6 +10,13 @@ class StudentAlreadyHasAdvisorException(Exception):
     """
     Raised when attempted to access recommended advisors
         of a student but the student already has an advisor.
+    """
+    pass
+
+
+class InvalidUserClassException(Exception):
+    """
+    Raised when the attempted class is not a user class.
     """
     pass
 
@@ -129,6 +136,7 @@ class Student(User_):
     """
     student_id: int
     is_approved: bool
+    has_proposed: bool
     semester: int
     program_name: str
     thesis_topic: str
@@ -173,5 +181,23 @@ class Thesis:
     submission_date: date
     extension_status: str 
     extension_info: str
+
+
+def get_user(class_type: type, user_id: int) -> Optional[dict]:
+    """
+    Get a user's information excluding the password.
+
+    :param class_type: Class of the user, student or advisor.
+    :param user_id: ID of the user.
+    :return The user information as a dictionary or None if no such user exists.
+    """
+    if class_type not in [Student, Advisor]:
+        raise InvalidUserClassException
+    if not class_type.has(user_id):
+        return None
+    user_ = class_type.fetch(user_id)
+    dict_ = asdict(user_)  # Get the user information as a dictionary.
+    del dict_['password']  # Delete password information.
+    return dict_
 
 
