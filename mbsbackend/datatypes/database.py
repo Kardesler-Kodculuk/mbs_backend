@@ -217,11 +217,37 @@ def bind_database(obj_id_row: str):
 
             @classmethod
             def has(cls, object_id: int) -> bool:
+                """
+                Check if the bound table of this dataclass has a record
+                    with the given object id.
+
+                :param object_id: Object Identifer to check.
+                :return True if such a record exists, otherwise False.
+                """
                 where_clause = f"{cls._obj_id_row} = {object_id}"
                 query = f"SELECT * FROM {cls._table_name} WHERE {where_clause}"
                 if len(global_query_handler.execute_query(query)) > 0:
                     return True
                 return False
+
+            @classmethod
+            def has_where(cls, criteria: str, value: Any) -> bool:
+                """
+                Check if the bound table of this dataclass has a record
+                    with the given search criteria
+
+                :param criteria: Criteria to check, the name of the column.
+                :param value: Value of the column that should be matched.
+                :return True if there is such a record, or False otherwise,
+                    (including when criteria column does not exist at all.)
+                """
+                where_clause = f"{criteria} = {value}"
+                query = f"SELECT * FROM {cls._table_name} WHERE {where_clause}"
+                try:
+                    if len(global_query_handler.execute_query(query)) > 0:
+                        return True
+                finally:
+                    return False
 
             @classmethod
             def fetch(cls, object_id: int) -> "DatabaseBound":
@@ -243,7 +269,7 @@ def bind_database(obj_id_row: str):
                 return cls(*values)  # Initialise an object with these args.
 
             @classmethod
-            def fetch_where(cls, criteria: str, value: str) -> List["DatabaseBound"]:
+            def fetch_where(cls, criteria: str, value: Any) -> List["DatabaseBound"]:
                 """
                 Get members of this class (if any) according to the given
                     criteria.
