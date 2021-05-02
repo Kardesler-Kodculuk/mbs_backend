@@ -1,11 +1,13 @@
 # Resource access tests, including GET Requests to single resources,
 #   and PATCH requests.
+import sqlite3
 from os import environ
 import flask_unittest
 import flask.globals
 from flask import Response, request
 from flask.testing import FlaskClient
-from tests.expected_responses import expected_student_get_0, expected_advisor_get_1
+from tests.expected_responses import expected_student_get_0, expected_advisor_get_1, expected_proposals, \
+    expected_recommendations
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
@@ -39,3 +41,63 @@ class TestGetResources(flask_unittest.ClientTestCase):
         resp = client.get('advisors/2')
         self.assertStatus(resp, 400)
 
+
+class TestProposalsForAdvisor(flask_unittest.ClientTestCase):
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "bouwman@iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_get_proposals(self, client: FlaskClient) -> None:
+        resp = client.get('proposals')
+        self.assertStatus(resp, 200)
+        self.assertCountEqual(resp.json, expected_proposals)
+
+
+class TestProposalReject(flask_unittest.ClientTestCase):
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "bouwman@iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+        with sqlite3.connect("test.db") as test_con:
+            cur = test_con.cursor()
+            cur.execute("INSERT INTO Proposal VALUES (0, 4, 3)")  # Put everything back to its place.
+            cur.execute("UPDATE Student SET has_proposed = TRUE WHERE student_id = 4")
+            test_con.commit()
+
+    def test_reject_proposal(self, client: FlaskClient) -> None:
+        resp = client.delete('proposals/0')
+        self.assertStatus(resp, 204)
+        with sqlite3.connect("test.db") as test_con:
+            cur = test_con.cursor()
+            cur.execute("SELECT * FROM Proposal WHERE proposal_id = 0")
+            results = cur.fetchone()
+            self.assertIsNone(results)
+        resp2 = client.get('students/4')
+        self.assertEqual(resp2.json['has_proposed'], 0)  # Check if proposed is set to 0 sucessfully.
+
+
+class TestRecommendations(flask_unittest.ClientTestCase):
+    """
+    Test if we can see recommendations
+    """
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "studenttest2@std.iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_get_recommendations(self, client: FlaskClient) -> None:
+        resp = client.get('/recommendations')
+        self.assertCountEqual(resp.json, expected_recommendations)

@@ -40,7 +40,7 @@ expected_student_advisor = {
     "name_": "Scott",
     "surname": "Aaronson",
     "email": "studenttest@std.iyte.edu.tr",
-    "is_approved": 0,
+    "is_approved": 1,
     "has_proposed": 1,
     "semester": 2,
     "program_name": "Computer Engineering",
@@ -65,7 +65,7 @@ expected_student_get_0 = {
     "name_": "Scott",
     "surname": "Aaronson",
     "email": "studenttest@std.iyte.edu.tr",
-    "is_approved": 0,
+    "is_approved": 1,
     "has_proposed": 1,
     "semester": 2,
     "program_name": "Computer Engineering",
@@ -84,3 +84,29 @@ expected_advisor_get_1 = {
     "doctoral_specialty": "Systems Programming"
 }
 
+expected_proposals = [
+    {
+        "proposal_id": 0,
+        "advisor_id": 3,
+        "student_id": 4
+    },
+    {
+        "proposal_id": 1,
+        "advisor_id": 3,
+        "student_id": 5
+    }
+]
+
+expected_recommendations = [
+    {
+        "recommendation_id": 0,
+        "advisor_id": 1,
+        "student_id": 2
+    },
+    {
+        "recommendation_id": 1,
+        "advisor_id": 3,
+        "student_id": 2
+    }
+
+]

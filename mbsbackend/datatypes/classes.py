@@ -34,25 +34,25 @@ class Instructor:
     advisor_id: int
 
 
-@bind_database(obj_id_row='id_')
+@bind_database(obj_id_row='recommendation_id')
 @dataclass
 class Recommended:
     """
     Indicates that an advisor was
         recommended to a student.
     """
-    id_: int
+    recommendation_id: int
     student_id: int
     advisor_id: int
 
-@bind_database(obj_id_row='id_')
+@bind_database(obj_id_row='proposal_id')
 @dataclass
 class Proposal:
     """
     Indicates a student that has proposed
         to an advisor.
     """
-    id_: int
+    proposal_id: int
     student_id: int
     advisor_id: int
 
@@ -106,11 +106,11 @@ class Advisor(User_):
     doctoral_specialty: str
 
     @property
-    def proposals(self) -> List["Student"]:
-        students = []
+    def proposals(self) -> List[Proposal]:
+        proposals = []
         if Proposal.has_where('advisor_id', self.advisor_id):  # Check if any students proposed.
-            students.extend(*Proposal.fetch_where('advisor_id', self.advisor_id))  # Fetch them.
-        return students
+            proposals.extend(Proposal.fetch_where('advisor_id', self.advisor_id))  # Fetch them.
+        return proposals
 
 
 @bind_database(obj_id_row='jury_id')
@@ -155,13 +155,13 @@ class Student(User_):
         return None  # Otherwise return None.
 
     @property
-    def recommendations(self) -> List[Advisor]:
+    def recommendations(self) -> List[Recommended]:
         if self.advisor:
             raise StudentAlreadyHasAdvisorException
-        recommendations: List[Advisor] = []
+        recommendations: List[Recommended] = []
         if Recommended.has_where('student_id', self.student_id):  # If any recommendation available.
             # Add them to the list.
-            recommendations.extend(*Recommended.fetch_where('student_id', self.student_id))
+            recommendations.extend(Recommended.fetch_where('student_id', self.student_id))
         return recommendations  # Return the list.
 
 
