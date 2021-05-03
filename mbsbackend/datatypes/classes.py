@@ -112,6 +112,17 @@ class Advisor(User_):
             proposals.extend(Proposal.fetch_where('advisor_id', self.advisor_id))  # Fetch them.
         return proposals
 
+    def set_advisor_to(self, student: "Student") -> None:
+        """
+        Set this advisor to an advisor to a student.
+
+        :param student: New advisee of the advisor.
+        """
+        instructor_relationship = Instructor(-1, student.student_id, self.advisor_id)
+        instructor_relationship.create()
+        student.is_approved = True
+        student.update()  # Update the student's state.
+
 
 @bind_database(obj_id_row='jury_id')
 @dataclass

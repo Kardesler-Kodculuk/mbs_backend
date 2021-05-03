@@ -9,7 +9,7 @@ from flask import Flask, g, request, jsonify
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
-from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user
+from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields
 from mbsbackend.server_internals.verification import json_required
@@ -209,5 +209,53 @@ def create_app() -> Flask:
         student.has_proposed = False
         student.update()
         return "", 204
+
+    @app.route('/proposals', methods=["POST"])
+    @jwt_required()
+    def create_new_proposal() -> Tuple[str, int]:
+        """
+        A student user may create a proposal to an advisor
+            user, provided that they're in their recommended list of
+            advisors.
+        """
+        payload = request.json
+        student = current_user.downcast()
+        if not isinstance(student, Student):
+            return jsonify({"msg": "Unauthorised."}), 403
+        advisor_id = payload["advisor_id"]
+        student_recommended_advisors = [recommendation.advisor_id for recommendation in student.recommendations]
+        if student.has_proposed:
+            return jsonify({"msg": "Already proposed."}), 409
+        elif advisor_id not in student_recommended_advisors:  # If this student was not recommended their advisor.
+            return jsonify({"msg": "Advisor is not recommended to the user."}), 409
+        elif not Advisor.has(advisor_id):
+            return jsonify({"msg": "No such advisor."}), 404
+        else:  # Otherwise we are fine and can propose.
+            student.has_proposed = True
+            student.update()
+            proposal_ = Proposal(-1, student.student_id, advisor_id)
+            proposal_.create()
+            return jsonify(asdict(proposal_)), 201
+
+    @app.route('/proposals/<proposal_id>', methods=["PUT"])
+    @jwt_required()
+    def approve_proposal(proposal_id: str) -> Tuple[str, int]:
+        """
+        An advisor user can approve the proposals made to them.
+        """
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):
+            return jsonify({"msg": "Unauthorised."}), 403
+        proposal = Proposal.has(int(proposal_id)) and Proposal.fetch(int(proposal_id))
+        if not proposal:
+            return jsonify({"msg": "Proposal not found!"}), 404
+        student = Student.fetch(proposal.student_id)
+        if student.is_approved:
+            return jsonify({"msg": "Student already accepted by another advisor."}), 409
+        elif advisor.advisor_id != proposal.advisor_id:
+            return jsonify({"msg": "Unathorised advisor."}), 403
+        proposal.delete()
+        advisor.set_advisor_to(student)  # Set the advisor's state.
+        return jsonify({"msg": "Successful"}), 200
 
     return app

@@ -2,9 +2,15 @@
 This file contains decorators that can be put on top
     of certain classes to test certain preconditions.
 """
+from functools import wraps
 from json.decoder import JSONDecodeError
 from typing import Tuple, Callable
 from json import loads
+
+from flask import jsonify
+from flask_jwt_extended import current_user
+
+from mbsbackend import User_
 
 
 def _is_json(string_: str) -> bool:

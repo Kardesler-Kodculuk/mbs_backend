@@ -2,7 +2,8 @@
 This module contains functions and classes that connect to the
     database.
 """
-from logging import log
+from abc import abstractmethod, abstractproperty, ABC
+from logging import log, debug
 from os import getenv, remove
 from os.path import exists
 import sqlite3
@@ -11,7 +12,7 @@ from dataclasses import is_dataclass
 from re import compile
 
 
-class QueryHandler:
+class QueryHandler(ABC):
     """
     Class that encapsulates queries to the underlying
         DBMS.
@@ -35,6 +36,16 @@ class QueryHandler:
             return self.cursor.fetchall()  # Fetch and return the results.
         self.connection.commit()  # Otherwise commit the results.
 
+    @property
+    @abstractmethod
+    def last_inserted_row_id(self) -> int:
+        """
+        Get the ID of the last inserted row.
+
+        :return ID of the last inserted row.
+        """
+        pass
+
 
 class TestQueryHandler(QueryHandler):
     """
@@ -48,6 +59,9 @@ class TestQueryHandler(QueryHandler):
             with open("init_test_database.sql") as script_f:  # Initialise the database.
                 cur.executescript(script_f.read())
         super().__init__(conn, cur)
+
+    def last_inserted_row_id(self) -> int:
+        return self.cursor.lastrowid
 
 
 global_query_handler = TestQueryHandler(getenv('FLASK_DB_NAME', 'mbs.db'))  # Declaring it in global will let flask threads handle this.
@@ -63,10 +77,11 @@ def _stringfy(value: Any) -> str:
         string values this is just ' added to the both
         sides, otherwise no change.
     """
-    if isinstance(value, str):
+    if value is None:
+        return "NULL"
+    elif isinstance(value, str):
         value = f"'{value}'"  # Add the appropriate quotes.
     return str(value)
-
 
 """
 Below is the main functions that deal with the connection between
@@ -324,16 +339,17 @@ def bind_database(obj_id_row: str):
 
             def create(self) -> None:
                 """
-                Insert this object to the bound database.
+                Insert this object to the bound database. This method only works
+                    on DataBound objects that have no superclasses in the database.
                 """
-                for type_ in self._table_inheritance:  # For each antecendent dataclass type,
-                    rows = self._table_inheritance[type_]  # Get the row names.
-                    field_values = [_stringfy(self.__getattribute__(row)) for row in rows]  # Get the values
-                    row_clause = ', '.join(rows)
-                    values_clause = ', '.join(field_values)
-                    global_query_handler.execute_query(f"INSERT INTO {type_._table_name}({row_clause})"
-                                                       f" VALUES({values_clause})")
-                    # And insert the record one by one starting from the most antecedent parent.
+                fields = unique_.copy()
+                fields.remove(self._obj_id_row)  # This is generated automatically.
+                values = [_stringfy(getattr(self, field)) for field in fields]  # Get the values in the same order.
+                rows_clause = '(' + ', '.join(fields) + ')'
+                values_clause = '(' + ', '.join(values) + ')'
+                global_query_handler.execute_query(f"INSERT INTO {self._table_name}"
+                                                   f" {rows_clause} VALUES {values_clause}")
+                setattr(self, self._obj_id_row, global_query_handler.last_inserted_row_id())  # Set the id correctly.
 
             def delete(self) -> None:
                 """
