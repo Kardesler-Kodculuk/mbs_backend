@@ -58,3 +58,18 @@ class TestRecommendations(flask_unittest.ClientTestCase):
     def test_get_recommendations(self, client: FlaskClient) -> None:
         resp = client.get('/recommendations')
         self.assertCountEqual(resp.json, expected_recommendations)
+
+
+class TestGetManagedStudentIDs(flask_unittest.ClientTestCase):
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "doyle@iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_get_recommendations(self, client: FlaskClient) -> None:
+        resp = client.get('/students')
+        self.assertCountEqual(resp.json, [7, 8])

@@ -90,9 +90,19 @@ INSERT INTO Student VALUES (2, FALSE, FALSE, 2, 'Computer Engineering', NULL, 'N
 INSERT INTO Recommended VALUES (0, 2, 1);
 INSERT INTO Recommended VALUES (1, 2, 3);
 
+INSERT INTO USER_ VALUES (6, 'Conan', 'Doyle', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'doyle@iyte.edu.tr');
+INSERT INTO Advisor VALUES (6, 'Computer Engineering', 'Operating Systems');
+INSERT INTO User_ VALUES (7, 'James', 'Moriarty', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'moriarty@std.iyte.edu.tr');
+INSERT INTO Student VALUES (7, TRUE, TRUE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
+INSERT INTO User_ VALUES (8, 'Mycroft', 'Holmes', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'holmes2@std.iyte.edu.tr');
+INSERT INTO Student VALUES (8, TRUE, TRUE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
+INSERT INTO Instructor VALUES(1, 7, 6);
+INSERT INTO Instructor VALUES(2, 8, 6);
+
 /**
   In the end, in this Test set, we have two advisors:
   Advisor 1: Kathleen Booth, who is recommended to Barbara Liskov and is the advisor of Scott Aaronson.
   Advisor 2: Hary Bouwman, who is recommended to Barbara Liskov and has pending proposals from John Watson and
     Sherlock Holmes.
+  Advisor 3: Conan Doyle, who is advisor to Mycroft Holmes and James Moriarty
  */

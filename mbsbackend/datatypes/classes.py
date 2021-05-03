@@ -123,6 +123,13 @@ class Advisor(User_):
         student.is_approved = True
         student.update()  # Update the student's state.
 
+    @property
+    def students(self) -> List[int]:
+        """
+        Get a list of student ids managed by this advisor.
+        """
+        instructors = Instructor.fetch_where("advisor_id", self.advisor_id)  # Get Instructor entities.
+        return [instructor.student_id for instructor in instructors]  # Get the student IDs from them.
 
 @bind_database(obj_id_row='jury_id')
 @dataclass
