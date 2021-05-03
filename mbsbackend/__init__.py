@@ -32,7 +32,7 @@ def create_app() -> Flask:
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
-    @app.route('/')
+    @app.route('/', methods=["GET", "OPTIONS"])
     def test_url():
         return app.send_static_file('index.html')
 
