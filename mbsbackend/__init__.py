@@ -11,7 +11,7 @@ from flask_jwt_extended import JWTManager, jwt_required, current_user, create_ac
 from dataclasses import asdict
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor
 from mbsbackend.server_internals.authentication import authenticate, identity
-from mbsbackend.server_internals.consants import forbidden_fields
+from mbsbackend.server_internals.consants import forbidden_fields, version_number
 from mbsbackend.server_internals.verification import json_required
 
 
@@ -33,7 +33,7 @@ def create_app() -> Flask:
 
     @app.route('/')
     def test_url():
-        return "Server running correctly on heroku. Version 0.1.2", 200
+        return f"Server running correctly on heroku {version_number}", 200
 
     @jwt.user_lookup_loader
     def curr_user(header, payload) -> User_:
