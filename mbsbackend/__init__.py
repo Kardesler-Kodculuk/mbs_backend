@@ -5,7 +5,7 @@ from datetime import datetime, timezone, timedelta
 from os import getenv, urandom
 from typing import Tuple
 from flask_cors import CORS
-from flask import Flask, g, request, jsonify
+from flask import Flask, g, request, jsonify, send_from_directory
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
@@ -33,7 +33,7 @@ def create_app() -> Flask:
 
     @app.route('/')
     def test_url():
-        return f"Server running correctly on heroku {version_number}", 200
+        return send_from_directory('static', 'index.html')
 
     @jwt.user_lookup_loader
     def curr_user(header, payload) -> User_:
