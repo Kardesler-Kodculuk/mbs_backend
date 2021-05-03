@@ -240,7 +240,7 @@ def create_app() -> Flask:
             proposal_.create()
             return jsonify(asdict(proposal_)), 201
 
-    @app.route('/proposals/<proposal_id>', methods=["PUT"])
+    @app.route('/proposals/<proposal_id>', methods=["POST"])
     @jwt_required()
     def approve_proposal(proposal_id: str) -> Tuple[str, int]:
         """
