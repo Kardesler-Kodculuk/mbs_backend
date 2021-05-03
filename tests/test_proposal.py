@@ -106,7 +106,7 @@ class TestProposalInvalidAccept(flask_unittest.ClientTestCase):
         """
         Attempt to accept an proposal that does not exist.
         """
-        resp = client.put('proposals/4')
+        resp = client.put('proposals/1000')
         self.assertStatus(resp, 404)
 
 
@@ -135,7 +135,7 @@ class TestProposalInvalidStudentAccept(flask_unittest.ClientTestCase):
         """
         Attempt to accept an proposal that does not exist.
         """
-        resp = client.put('proposals/4')
+        resp = client.put('proposals/1000')
         self.assertStatus(resp, 403)  # But we should still get 403!
 
 

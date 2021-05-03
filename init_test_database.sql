@@ -106,3 +106,22 @@ INSERT INTO Instructor VALUES(2, 8, 6);
     Sherlock Holmes.
   Advisor 3: Conan Doyle, who is advisor to Mycroft Holmes and James Moriarty
  */
+
+INSERT INTO USER_ VALUES (9, 'Agatha', 'Christie', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'christie@iyte.edu.tr');
+INSERT INTO Advisor VALUES (9, 'Computer Engineering', 'Operating Systems');
+INSERT INTO User_ VALUES (10, 'Hercule', 'Poirot', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'poirot@std.iyte.edu.tr');
+INSERT INTO Student VALUES (10, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA');
+INSERT INTO User_ VALUES (11, 'Arthur', 'Hastings', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'hastings@std.iyte.edu.tr');
+INSERT INTO Student VALUES (11, TRUE, TRUE, 2, 'Computer Engineering', 'Robotics', 'NA', 'NA');
+INSERT INTO User_ VALUES (12, 'Jane', 'Marple', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'marple@std.iyte.edu.tr');
+INSERT INTO Student VALUES (12, TRUE, TRUE, 2, 'Computer Engineering', 'Fault Tollerance', 'NA', 'NA');
+INSERT INTO User_ VALUES (13, 'Harold', 'Japp', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'japp@std.iyte.edu.tr');
+INSERT INTO Student VALUES (13, TRUE, TRUE, 2, 'Computer Engineering', 'Embedded Systems', 'NA', 'NA');
+INSERT INTO User_ VALUES (14, 'Raymond', 'West', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'west@std.iyte.edu.tr');
+INSERT INTO Student VALUES (14, TRUE, TRUE, 2, 'Computer Engineering', 'Assembly Language', 'NA', 'NA');
+
+INSERT INTO Proposal VALUES (2, 10, 9);
+INSERT INTO Proposal VALUES (3, 11, 9);
+INSERT INTO Proposal VALUES (4, 12, 9);
+INSERT INTO Proposal VALUES (5, 13, 9);
+INSERT INTO Proposal VALUES (6, 14, 9);
