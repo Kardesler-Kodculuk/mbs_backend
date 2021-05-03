@@ -23,8 +23,7 @@ def create_app() -> Flask:
     """
     app = Flask(__name__)  # Create the app object.
     jwt = JWTManager(app)
-    CORS(app, resources={r"/jwt/*": {"origins": "http://localhost:3000"},
-                         r"/user/*": {"origins": "http://localhost:3000"}}, supports_credentials=True)
+    CORS(app,  supports_credentials=True)
     app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", urandom(24))
     app.config['JWT_AUTH_URL_RULE'] = '/jwt'
     app.config["JWT_COOKIE_SECURE"] = False
