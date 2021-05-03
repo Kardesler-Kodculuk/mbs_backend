@@ -26,6 +26,7 @@ def create_app() -> Flask:
     CORS(app,  supports_credentials=True)
     app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", urandom(24))
     app.config['JWT_AUTH_URL_RULE'] = '/jwt'
+    app.config['DEBUG'] = False
     app.config["JWT_COOKIE_SECURE"] = False
     app.config["JWT_COOKIE_CSRF_PROTECT"] = False
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
@@ -33,7 +34,7 @@ def create_app() -> Flask:
 
     @app.route('/')
     def test_url():
-        return send_from_directory('static', 'index.html')
+        return app.send_static_file('index.html')
 
     @jwt.user_lookup_loader
     def curr_user(header, payload) -> User_:
