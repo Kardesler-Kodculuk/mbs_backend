@@ -33,7 +33,7 @@ def create_app() -> Flask:
 
     @app.route('/')
     def test_url():
-        return "Server running correctly on heroku. Version 0.1.1", 200
+        return "Server running correctly on heroku. Version 0.1.2", 200
 
     @jwt.user_lookup_loader
     def curr_user(header, payload) -> User_:
@@ -240,7 +240,7 @@ def create_app() -> Flask:
             proposal_.create()
             return jsonify(asdict(proposal_)), 201
 
-    @app.route('/proposals/<proposal_id>', methods=["POST"])
+    @app.route('/proposals/<proposal_id>', methods=["PUT"])
     @jwt_required()
     def approve_proposal(proposal_id: str) -> Tuple[str, int]:
         """
@@ -272,6 +272,5 @@ def create_app() -> Flask:
             return jsonify({"msg": "Only the advisors can see their proposals."}), 403
         students = advisor.students
         return jsonify(students), 200
-
 
     return app

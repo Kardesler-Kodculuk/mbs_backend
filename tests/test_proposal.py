@@ -71,7 +71,7 @@ class TestProposalAccept(flask_unittest.ClientTestCase):
             test_con.commit()
 
     def test_accept_proposal(self, client: FlaskClient) -> None:
-        resp = client.post('proposals/1')
+        resp = client.put('proposals/1')
         self.assertStatus(resp, 200)
         with sqlite3.connect("test.db") as test_con:
             cur = test_con.cursor()
@@ -99,14 +99,14 @@ class TestProposalInvalidAccept(flask_unittest.ClientTestCase):
         """
         Attempt to accept an unonwned proposal.
         """
-        resp = client.post('proposals/1')
+        resp = client.put('proposals/1')
         self.assertStatus(resp, 403)
 
     def test_accept_proposal_nonexistent_advisor(self, client: FlaskClient) -> None:
         """
         Attempt to accept an proposal that does not exist.
         """
-        resp = client.post('proposals/1000')
+        resp = client.put('proposals/1000')
         self.assertStatus(resp, 404)
 
 
@@ -128,14 +128,14 @@ class TestProposalInvalidStudentAccept(flask_unittest.ClientTestCase):
         """
         Attempt to accept an unonwned proposal.
         """
-        resp = client.post('proposals/1')
+        resp = client.put('proposals/1')
         self.assertStatus(resp, 403)
 
     def test_accept_proposal_nonexistent_student(self, client: FlaskClient) -> None:
         """
         Attempt to accept an proposal that does not exist.
         """
-        resp = client.post('proposals/1000')
+        resp = client.put('proposals/1000')
         self.assertStatus(resp, 403)  # But we should still get 403!
 
 
