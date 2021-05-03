@@ -230,6 +230,8 @@ def create_app() -> Flask:
         student_recommended_advisors = [recommendation.advisor_id for recommendation in student.recommendations]
         if student.has_proposed:
             return jsonify({"msg": "Already proposed."}), 409
+        elif student.thesis_topic is None or student.thesis_topic == "NULL":
+            return jsonify({"msg": "Cannot propose to a student without having a valid thesis topic."}), 409
         elif advisor_id not in student_recommended_advisors:  # If this student was not recommended their advisor.
             return jsonify({"msg": "Advisor is not recommended to the user."}), 409
         elif not Advisor.has(advisor_id):

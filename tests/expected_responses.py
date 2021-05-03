@@ -11,7 +11,7 @@ expected_student = {
     "has_proposed": 0,
     "semester": 2,
     "program_name": "Computer Engineering",
-    "thesis_topic": None,
+    "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
     "jury_tss_decision": "NA"
   }

@@ -86,7 +86,7 @@ INSERT INTO Proposal VALUES (1, 5, 3);
   This is a student without an advisor, but she is recommended two.
  */
 INSERT INTO User_ VALUES (2, 'Barbara', 'Liskov', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest2@std.iyte.edu.tr');
-INSERT INTO Student VALUES (2, FALSE, FALSE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
+INSERT INTO Student VALUES (2, FALSE, FALSE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
 INSERT INTO Recommended VALUES (0, 2, 1);
 INSERT INTO Recommended VALUES (1, 2, 3);
 
@@ -125,3 +125,8 @@ INSERT INTO Proposal VALUES (3, 11, 9);
 INSERT INTO Proposal VALUES (4, 12, 9);
 INSERT INTO Proposal VALUES (5, 13, 9);
 INSERT INTO Proposal VALUES (6, 14, 9);
+
+INSERT INTO User_ VALUES (15, 'Sophia', 'Leonides', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'leonides@std.iyte.edu.tr');
+INSERT INTO Student VALUES (15, FALSE, TRUE, 2, 'Computer Engineering', 'Assembly Language', 'NA', 'NA');
+
+INSERT INTO Recommended VALUES (2, 15, 9);

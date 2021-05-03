@@ -10,6 +10,7 @@ from tests.expected_responses import expected_student_get_0, expected_advisor_ge
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
 
+
 class TestUpdateStudentThesis(flask_unittest.ClientTestCase):
     app = create_app()
 
