@@ -33,7 +33,7 @@ def create_app() -> Flask:
 
     @app.route('/')
     def test_url():
-        return "Server running correctly on heroku.", 200
+        return "Server running correctly on heroku. Version 0.1.1", 200
 
     @jwt.user_lookup_loader
     def curr_user(header, payload) -> User_:
