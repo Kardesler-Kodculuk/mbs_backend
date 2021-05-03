@@ -258,4 +258,17 @@ def create_app() -> Flask:
         advisor.set_advisor_to(student)  # Set the advisor's state.
         return jsonify({"msg": "Successful"}), 200
 
+    @app.route('/students', methods=['GET'])
+    @jwt_required()
+    def get_managed_students() -> Tuple[str, int]:
+        """
+        Get a list of Students managed by this advisor.
+        """
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):  # If the current user is not an advisor.
+            return jsonify({"msg": "Only the advisors can see their proposals."}), 403
+        students = advisor.students
+        return jsonify(students), 200
+
+
     return app
