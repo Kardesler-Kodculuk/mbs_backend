@@ -32,6 +32,10 @@ def create_app() -> Flask:
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
+    @app.route('/')
+    def test_url():
+        return "Server running correctly on heroku.", 200
+
     @jwt.user_lookup_loader
     def curr_user(header, payload) -> User_:
         return User_.fetch(payload['sub']['user_id'])
