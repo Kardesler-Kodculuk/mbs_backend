@@ -21,7 +21,7 @@ def create_app() -> Flask:
         although I recognise this looks complex, it is not a
         typical function.
     """
-    app = Flask(__name__)  # Create the app object.
+    app = Flask(__name__, static_folder='./static', static_url_path='/frontend/')  # Create the app object.
     jwt = JWTManager(app)
     CORS(app,  supports_credentials=True)
     app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", urandom(24))
@@ -32,7 +32,7 @@ def create_app() -> Flask:
     app.config["JWT_TOKEN_LOCATION"] = ["cookies"]
     app.config["JWT_ACCESS_TOKEN_EXPIRES"] = timedelta(hours=1)
 
-    @app.route('/', methods=["GET", "OPTIONS"])
+    @app.route('/frontend/', methods=["GET", "OPTIONS"])
     def test_url():
         return app.send_static_file('index.html')
 
