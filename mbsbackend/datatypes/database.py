@@ -154,12 +154,16 @@ def bind_database(obj_id_row: str):
     When decorating a dataclass, this decorator mutates the behaviour of the dataclass
         in the following ways:
 
-        1) Adds the get method to the dataclass, this static factory method queries
-            the database and returns the object with the given id.
-        2) Adds the update method, which automatically updates the contents of the
+        1) Adds the fetch (class) method to the dataclass, this static factory method queries
+            the database and returns the object with the given id. This also has a fetch_where
+            variant.
+        2) Adds the has (class) method to the dataclass, which can be used to check if a specific
+            entity exists. This also has a has_where variant.
+        3) Adds the update method, which automatically updates the contents of the
             bound database object.
-        3) Adds the create method, which creates an object with the given id and
+        4) Adds the create method, which creates an object with the given id and
             row information.
+        5)
 
     In order to bind the dataclass to the database, the database defined in the
         QueryHandler must already be instantiated and its schemas must be set up,
