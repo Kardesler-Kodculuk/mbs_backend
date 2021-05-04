@@ -2,6 +2,7 @@
 This file includes the app routes.
 """
 from datetime import datetime, timezone, timedelta
+from logging import debug
 from os import getenv, urandom
 from typing import Tuple
 from flask_cors import CORS
@@ -256,6 +257,7 @@ def create_app() -> Flask:
         if not proposal:
             return jsonify({"msg": "Proposal not found!"}), 404
         student = Student.fetch(proposal.student_id)
+        debug(f"Proposal ID: {proposal.proposal_id} with student {student.name_} {student.surname}")
         if student.is_approved:
             return jsonify({"msg": "Student already accepted by another advisor."}), 409
         elif advisor.advisor_id != proposal.advisor_id:
