@@ -250,6 +250,7 @@ def create_app() -> Flask:
         """
         An advisor user can approve the proposals made to them.
         """
+        print(f"Proposal Accept Request to Proposal {proposal_id}")
         advisor = current_user.downcast()
         if not isinstance(advisor, Advisor):
             return jsonify({"msg": "Unauthorised."}), 403
