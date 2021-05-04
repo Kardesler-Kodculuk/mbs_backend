@@ -163,7 +163,6 @@ def bind_database(obj_id_row: str):
             bound database object.
         4) Adds the create method, which creates an object with the given id and
             row information.
-        5)
 
     In order to bind the dataclass to the database, the database defined in the
         QueryHandler must already be instantiated and its schemas must be set up,
