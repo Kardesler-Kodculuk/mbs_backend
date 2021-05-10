@@ -13,7 +13,6 @@ from dataclasses import asdict
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
-from mbsbackend.server_internals.verification import json_required
 
 
 def create_app() -> Flask:
@@ -250,7 +249,6 @@ def create_app() -> Flask:
         """
         An advisor user can approve the proposals made to them.
         """
-        print(f"Proposal Accept Request to Proposal {proposal_id}")
         advisor = current_user.downcast()
         if not isinstance(advisor, Advisor):
             return jsonify({"msg": "Unauthorised."}), 403
@@ -258,7 +256,6 @@ def create_app() -> Flask:
         if not proposal:
             return jsonify({"msg": "Proposal not found!"}), 404
         student = Student.fetch(proposal.student_id)
-        print(f"Proposal ID: {proposal.proposal_id} with student {student.name_} {student.surname}")
         if student.is_approved:
             return jsonify({"msg": "Student already accepted by another advisor."}), 409
         elif advisor.advisor_id != proposal.advisor_id:
