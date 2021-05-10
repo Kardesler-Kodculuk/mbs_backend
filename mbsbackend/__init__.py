@@ -13,7 +13,7 @@ from dataclasses import asdict
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
-from mbsbackend.server_internals.verification import returns_json
+from mbsbackend.server_internals.verification import returns_json, full_json, requires_json
 
 
 def create_app() -> Flask:
@@ -133,7 +133,7 @@ def create_app() -> Flask:
         return student, 200
 
     @app.route('/students/<student_id>', methods=["PATCH"])
-    @returns_json
+    @full_json()
     @jwt_required()
     def update_student_information(student_id: str) -> Tuple[dict, int]:
         """
@@ -223,7 +223,7 @@ def create_app() -> Flask:
         return {"msg": "Proposal deleted."}, 204
 
     @app.route('/proposals', methods=["POST"])
-    @returns_json
+    @full_json()
     @jwt_required()
     def create_new_proposal() -> Tuple[dict, int]:
         """

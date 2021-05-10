@@ -35,7 +35,7 @@ def requires_json(**decorator_kwargs):
                 be the argument to be tested.
             """
             try:
-                data = loads(request.json)
+                data = loads(request.data)
                 # Now check if the required keys are all in the data.
                 if not all([required_key in data for required_key in required_keys]):
                     resp = Response(dumps({'msg': 'ERROR: Malformed request, does not contain required keys.'}),
@@ -75,6 +75,6 @@ def full_json(**decorator_kwargs):
     def decorator(route):
         @wraps(route)
         def wrapper(*args, **kwargs):
-            return returns_json(requires_json(**decorator_kwargs)(route))(*args, **kwargs)  # Apply the two decorators.
+            return requires_json(**decorator_kwargs)(returns_json(route))(*args, **kwargs)  # Apply the two decorators.
         return wrapper
     return decorator
