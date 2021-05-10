@@ -223,7 +223,7 @@ def create_app() -> Flask:
         return {"msg": "Proposal deleted."}, 204
 
     @app.route('/proposals', methods=["POST"])
-    @full_json()
+    @full_json(required_keys=('advisor_id', ))
     @jwt_required()
     def create_new_proposal() -> Tuple[dict, int]:
         """
