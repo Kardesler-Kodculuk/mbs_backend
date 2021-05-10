@@ -4,9 +4,9 @@ This file contains decorators that can be put on top
 """
 from functools import wraps
 from json.decoder import JSONDecodeError
-from json import loads
+from json import loads, dumps
 
-from flask import jsonify, Response, request
+from flask import Response, request
 
 
 def requires_json(**decorator_kwargs):
@@ -38,14 +38,14 @@ def requires_json(**decorator_kwargs):
                 data = loads(request.json)
                 # Now check if the required keys are all in the data.
                 if not all([required_key in data for required_key in required_keys]):
-                    resp = Response(jsonify({'msg': 'ERROR: Malformed request, does not contain required keys.'}),
-                                    status=400, content_type='application/json')
+                    resp = Response(dumps({'msg': 'ERROR: Malformed request, does not contain required keys.'}),
+                                    status=400, mimetype='application/json')
                 else:
                     resp = route(*args, **kwargs)
                 return resp
             except JSONDecodeError:
-                resp = Response(jsonify({'msg': 'ERROR: Expected valid JSON in Request body.'}),
-                                status=400, content_type='application/json')
+                resp = Response(dumps({'msg': 'ERROR: Expected valid JSON in Request body.'}),
+                                status=400, mimetype='application/json')
                 return resp
         return wrapper
     return json_required
@@ -61,7 +61,7 @@ def returns_json(route):
     def wrapper(*args, **kwargs):
         try:
             value, status = route(*args, **kwargs)
-            return Response(jsonify(value), status=status, content_type='application/json')
+            return Response(dumps(value), status=status, mimetype='application/json')
         except ValueError:
             raise TypeError("Expected the function return type to be tuple[dict, int].")
     return wrapper
