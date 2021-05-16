@@ -21,6 +21,16 @@ class InvalidUserClassException(Exception):
     pass
 
 
+@bind_database(obj_id_row='department_id')
+@dataclass
+class Department:
+    """
+    Represents a department such as Computer Engineering
+    """
+    department_id: int
+    department_name: str
+
+
 @bind_database(obj_id_row='id_')
 @dataclass
 class Instructor:
@@ -131,6 +141,7 @@ class Advisor(User_):
         instructors = Instructor.fetch_where("advisor_id", self.advisor_id)  # Get Instructor entities.
         return [instructor.student_id for instructor in instructors]  # Get the student IDs from them.
 
+
 @bind_database(obj_id_row='jury_id')
 @dataclass
 class Jury(User_):
@@ -192,14 +203,70 @@ class Thesis:
     """
     thesis_id: int
     file_path: str
-    evaluation: str
-    is_final: bool
+    plagiarism_ratio: int
     thesis_topic: str
-    due_date: date
-    submission_date: date
-    extension_status: str 
-    extension_info: str
+    due_date: int
+    submission_date: int
 
+
+@bind_database(obj_id_row='dissertation_id')
+@dataclass
+class Dissertation:
+    """
+    Represents the exam done to evaluate whether or not if
+        a thesis shall pass. Turkish for this term is Tez
+        Savunma Sınavı.
+    """
+    dissertation_id: int
+    jury_date: int
+    is_approved: int # TSS date and jury configuration must be approved first.
+
+
+@bind_database(obj_id_row='member_id')
+@dataclass
+class Member:
+    """
+    Represents the relationship between a jury member and a
+        dissertation they evaluate on.
+    """
+    member_id: int
+    dissertation_id: int
+    jury_id: int
+
+
+@bind_database(obj_id_row='defending_id')
+@dataclass
+class Defending:
+    """
+    Represents the relationship between a student and the dissertation
+        their thesis is evaluated in.
+    """
+    defending_id: int
+    dissertation_id: int
+    student_id: int
+
+
+@bind_database(obj_id_row='has_id')
+@dataclass
+class Has:
+    """
+    Represents who owns a thesis.
+    """
+    has_id: int
+    thesis_id: int
+    student_id: int
+
+
+@bind_database(obj_id_row='evaluation_id')
+@dataclass
+class Evaluation:
+    """
+    Represents an evaluation by a jury member on
+        a specific dissertation.
+    """
+    evaluation_id: int
+    jury_id: int
+    evaluation: str
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
     """

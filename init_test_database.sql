@@ -1,3 +1,15 @@
+
+/**
+ ########################################
+ #             USER TABLES              #
+ ########################################
+ */
+
+CREATE TABLE IF NOT EXISTS Department (
+    department_id INTEGER PRIMARY KEY,
+    department_name TEXT UNIQUE
+);
+
 CREATE TABLE IF NOT EXISTS USER_ (
     user_id INTEGER PRIMARY KEY,
     name_ TEXT NOT NULL,
@@ -59,6 +71,64 @@ CREATE TABLE IF NOT EXISTS Proposal (
     FOREIGN KEY (student_id) REFERENCES Student(student_id),
     FOREIGN KEY (advisor_id) REFERENCES Advisor(advisor_id)
 );
+
+
+/**
+ ########################################
+ #             THESIS TABLES            #
+ ########################################
+ */
+
+CREATE TABLE IF NOT EXISTS Thesis (
+    thesis_id INTEGER PRIMARY KEY,
+    file_path TEXT UNIQUE,
+    plagiarism_ratio INTEGER,
+    thesis_topic TEXT,
+    due_date INTEGER,
+    submission_date INTEGER
+);
+
+
+CREATE TABLE IF NOT EXISTS Has(
+    has_id INTEGER PRIMARY KEY,
+    thesis_id INTEGER,
+    student_id INTEGER,
+    FOREIGN KEY (thesis_id) REFERENCES Thesis(thesis_id),
+    FOREIGN KEY (student_id) REFERENCES Student(student_id)
+);
+
+
+/** These are the relationships and tables about Dissertations */
+
+CREATE TABLE IF NOT EXISTS Dissertation(
+    dissertation_id INTEGER PRIMARY KEY,
+    jury_date INTEGER,
+    is_approved BOOLEAN
+);
+
+CREATE TABLE IF NOT EXISTS Member (
+    member_id INTEGER PRIMARY KEY,
+    dissertation_id INTEGER,
+    jury_id INTEGER,
+    FOREIGN KEY (dissertation_id) REFERENCES Dissertation(dissertation_id),
+    FOREIGN KEY (jury_id) REFERENCES JURY(jury_id)
+);
+
+CREATE TABLE IF NOT EXISTS Defending (
+    defending_id INTEGER PRIMARY KEY,
+    dissertation_id INTEGER,
+    student_id INTEGER,
+    FOREIGN KEY (dissertation_id) REFERENCES Dissertation(dissertation_id),
+    FOREIGN KEY (student_id) REFERENCES Student(student_id)
+);
+
+CREATE TABLE IF NOT EXISTS Evaluation (
+    evaluation_id INTEGER PRIMARY KEY,
+    jury_id INTEGER,
+    evaluation_status TEXT
+                                      CHECK ( evaluation_status IN ('Correction', 'Rejected', 'Approved') )
+);
+
 /**
   This is a pair of Student and Advisors that has instructor relationship
     between each other.

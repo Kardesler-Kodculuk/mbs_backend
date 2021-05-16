@@ -269,7 +269,7 @@ def create_app() -> Flask:
         if student.is_approved:
             return {"msg": "Student already accepted by another advisor."}, 409
         elif advisor.advisor_id != proposal.advisor_id:
-            return {"msg": "Unathorised advisor."}, 403
+            return {"msg": "Unauthorised advisor."}, 403
         proposal.delete()
         advisor.set_advisor_to(student)  # Set the advisor's state.
         return {"msg": "Successful"}, 200
