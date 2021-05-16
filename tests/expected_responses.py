@@ -133,3 +133,5 @@ expected_thesis_metadata_get = {
 }
 
 expected_pdf_file_name = 'theses/grey_thesis_example0.pdf'
+
+expected_pdf_upload_resp = {'thesis_topic': 'Artificial Intelligence'}

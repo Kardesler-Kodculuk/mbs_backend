@@ -2,18 +2,23 @@
 This file includes the app routes.
 """
 import os.path
+import time
 from datetime import datetime, timezone, timedelta
 from json import dumps
 from logging import debug
-from os import getenv, urandom
+from os import getenv, urandom, remove
 from typing import Tuple, Union
 from flask_cors import CORS
 from flask import Flask, g, request, jsonify, send_from_directory, Response, send_file
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
+
+from werkzeug.utils import secure_filename
+
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department, Thesis
+    convert_department, Thesis, Has
+from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
 from mbsbackend.server_internals.verification import returns_json, full_json, requires_json
@@ -27,6 +32,7 @@ def create_app() -> Flask:
     """
     app = Flask(__name__)  # Create the app object.
     jwt = JWTManager(app)
+    plagiarism_api = PlagiarismManager()
     CORS(app,  supports_credentials=True)
     app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", urandom(24))
     app.config['JWT_AUTH_URL_RULE'] = '/jwt'
@@ -333,5 +339,51 @@ def create_app() -> Flask:
         thesis_info = asdict(thesis)
         thesis_path = thesis_info['file_path']  # It is better if the user is unaware of this.
         return send_file(os.path.join(os.getcwd(), thesis_path), mimetype='application/pdf')
+
+    @app.route('/theses/<thesis_id>', methods=['DELETE'])
+    @returns_json
+    @jwt_required()
+    def delete_thesis(thesis_id) -> Tuple[dict, int]:
+        """
+        Delete the thesis and associated metadata.
+        """
+        thesis_id = int(thesis_id)
+        student = current_user.downcast()
+        if not isinstance(student, Student):
+            return {"msg": "Not authorised for this action."}, 403
+        theses = student.theses  # TODO: If there is time we should check further for user's identity as well.
+        if thesis_id not in [thesis.thesis_id for thesis in theses]:
+            return {"msg": "Users cannot delete theses they do not own."}, 403
+        thesis = Thesis.fetch(thesis_id)
+        remove(os.path.join(os.getcwd(), thesis.file_path))  # Remove the thesis
+        has_relationship = Has.fetch_where('thesis_id', thesis.thesis_id)[0]
+        has_relationship.delete()  # Delete the ownership relationship
+        thesis.delete()  # Delete the associated metadata.
+        return {"msg": "Deleted thesis."}, 204
+
+    @app.route('/theses', methods=['POST'])
+    @returns_json
+    @jwt_required()
+    def upload_thesis() -> Tuple[dict, int]:
+        """
+        Post a thesis to the system and return its metadata.
+        """
+        student = current_user.downcast()
+        if not isinstance(student, Student):
+            return {"msg": "Not authorised for this action."}, 403
+        elif 'file' not in request.files:
+            return {"msg": "Files must contain a file with key file."}, 400
+        file = request.files['file']
+        filename = secure_filename(file.filename)
+        file.save(os.path.join(os.getcwd(), 'theses/', filename))  # Save to theses directory.
+        file_path = os.path.join('theses/', filename)  # Relative file path.
+        new_thesis_metadata = Thesis(-1, file_path, plagiarism_api.get_plagiarism_ratio(file_path),
+                                     student.thesis_topic, round(time.time()))
+        new_thesis_metadata.create()
+        new_ownership = Has(-1, new_thesis_metadata.thesis_id, student.student_id)
+        new_ownership.create()
+        metadata = asdict(new_thesis_metadata)
+        del metadata['file_path']
+        return metadata, 201
 
     return app
