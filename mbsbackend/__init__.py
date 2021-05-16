@@ -10,7 +10,8 @@ from flask import Flask, g, request, jsonify, send_from_directory
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
-from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor
+from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
+    convert_department
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
 from mbsbackend.server_internals.verification import returns_json, full_json, requires_json
@@ -102,22 +103,22 @@ def create_app() -> Flask:
             user_info['role'] = 'student'  # Set the role.
             user_info['student'] = asdict(user)
             user_info['username'] = user_info['student']['name_']  # Remove in Production. Backward Compatibility.
-            del user_info['student']['password']  # We should not let client see the hash.
             user_info['advisor'] = asdict(user.advisor)
-            del user_info['advisor']['password']  # Likewise, the client should definetly not see this hash.
         elif isinstance(user, Student) and not user.advisor:
             user_info['role'] = 'student'
             user_info['student'] = asdict(user)
             user_info['username'] = user_info['student']['name_']  # Remove in Production. Backward Compatibility.
-            del user_info['student']['password']  # We should not let client see the hash.
             user_info['username'] = user.name_
         elif isinstance(user, Advisor):
             user_info['role'] = 'advisor'
             user_info['advisor'] = asdict(user)
             user_info['username'] = user_info['advisor']['name_']  # Remove in Production. Backward Compatibility.
-            del user_info['advisor']['password']  # We should not let client see the hash.
         else:
             return {"message": "Invalid user type"}, 400
+        for key in user_info:
+            if isinstance(user_info[key], dict):
+                del user_info[key]['password']  # We shouldn't passwords
+                convert_department(user_info[key])  # And we should send dept names rather than ids.
         return user_info, 200
 
     @app.route('/students/<student_id>', methods=["GET"])

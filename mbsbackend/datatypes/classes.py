@@ -55,6 +55,7 @@ class Recommended:
     student_id: int
     advisor_id: int
 
+
 @bind_database(obj_id_row='proposal_id')
 @dataclass
 class Proposal:
@@ -90,6 +91,7 @@ class User_:
     surname: str
     password: str  # Hashed password string.
     email: str
+    department_id: int
 
     def downcast(self) -> Union["Advisor", "Student"]:
         """
@@ -112,7 +114,6 @@ class Advisor(User_):
         advisor privileges.
     """
     advisor_id: int
-    department: str
     doctoral_specialty: str
 
     @property
@@ -152,8 +153,9 @@ class Jury(User_):
     jury_id: int
     is_approved: bool
     institution: str
+    phone_number: str
     is_appointed: bool
-    department: str
+
 
 
 @bind_database(obj_id_row='student_id')
@@ -268,6 +270,7 @@ class Evaluation:
     jury_id: int
     evaluation: str
 
+
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
     """
     Get a user's information excluding the password.
@@ -283,6 +286,17 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
     user_ = class_type.fetch(user_id)
     dict_ = asdict(user_)  # Get the user information as a dictionary.
     del dict_['password']  # Delete password information.
+    convert_department(dict_)
     return dict_
 
 
+def convert_department(user_dict: dict) -> None:
+    """
+    Given a user dataclass' dictionary representation,
+        convert the department_id field to department
+        and its key to the name of the department.
+    """
+    department_id = user_dict['department_id']
+    department_name = Department.fetch(int(department_id)).department_name
+    del user_dict['department_id']
+    user_dict['department'] = department_name
