@@ -21,6 +21,16 @@ class InvalidUserClassException(Exception):
     pass
 
 
+@bind_database(obj_id_row='department_id')
+@dataclass
+class Department:
+    """
+    Represents a department such as Computer Engineering
+    """
+    department_id: int
+    department_name: str
+
+
 @bind_database(obj_id_row='id_')
 @dataclass
 class Instructor:
@@ -44,6 +54,7 @@ class Recommended:
     recommendation_id: int
     student_id: int
     advisor_id: int
+
 
 @bind_database(obj_id_row='proposal_id')
 @dataclass
@@ -80,6 +91,7 @@ class User_:
     surname: str
     password: str  # Hashed password string.
     email: str
+    department_id: int
 
     def downcast(self) -> Union["Advisor", "Student"]:
         """
@@ -102,7 +114,6 @@ class Advisor(User_):
         advisor privileges.
     """
     advisor_id: int
-    department: str
     doctoral_specialty: str
 
     @property
@@ -131,6 +142,7 @@ class Advisor(User_):
         instructors = Instructor.fetch_where("advisor_id", self.advisor_id)  # Get Instructor entities.
         return [instructor.student_id for instructor in instructors]  # Get the student IDs from them.
 
+
 @bind_database(obj_id_row='jury_id')
 @dataclass
 class Jury(User_):
@@ -141,8 +153,8 @@ class Jury(User_):
     jury_id: int
     is_approved: bool
     institution: str
+    phone_number: str
     is_appointed: bool
-    department: str
 
 
 @bind_database(obj_id_row='student_id')
@@ -160,6 +172,7 @@ class Student(User_):
     thesis_topic: str
     graduation_status: str
     jury_tss_decision: str
+    is_thesis_sent: bool
 
     @property
     def advisor(self) -> Optional[Advisor]:
@@ -182,6 +195,27 @@ class Student(User_):
             recommendations.extend(Recommended.fetch_where('student_id', self.student_id))
         return recommendations  # Return the list.
 
+    @property
+    def theses(self) -> List["Thesis"]:
+        """
+        Return the list of Theses uploaded by this
+            Student user.
+        """
+        theses_ids: List[int] = []
+        if Has.has_where('student_id', self.student_id):  # If the user has uploaded any theses' yet.
+            theses_ids.extend([has_relationship.thesis_id
+                               for has_relationship in Has.fetch_where('student_id', self.student_id)])
+        return [Thesis.fetch(thesis_id) for thesis_id in theses_ids]
+
+    @property
+    def latest_thesis_id(self) -> int:
+        theses_ = self.theses
+        theses_.sort(key=lambda thesis: thesis.submission_date)
+        theses_.reverse()
+        if theses_:
+            return theses_[0].thesis_id
+        else:
+            return -1
 
 @bind_database(obj_id_row='thesis_id')
 @dataclass
@@ -192,13 +226,69 @@ class Thesis:
     """
     thesis_id: int
     file_path: str
-    evaluation: str
-    is_final: bool
+    plagiarism_ratio: int
     thesis_topic: str
-    due_date: date
-    submission_date: date
-    extension_status: str 
-    extension_info: str
+    submission_date: int
+
+
+@bind_database(obj_id_row='dissertation_id')
+@dataclass
+class Dissertation:
+    """
+    Represents the exam done to evaluate whether or not if
+        a thesis shall pass. Turkish for this term is Tez
+        Savunma Sınavı.
+    """
+    dissertation_id: int
+    jury_date: int
+    is_approved: int # TSS date and jury configuration must be approved first.
+
+
+@bind_database(obj_id_row='member_id')
+@dataclass
+class Member:
+    """
+    Represents the relationship between a jury member and a
+        dissertation they evaluate on.
+    """
+    member_id: int
+    dissertation_id: int
+    jury_id: int
+
+
+@bind_database(obj_id_row='defending_id')
+@dataclass
+class Defending:
+    """
+    Represents the relationship between a student and the dissertation
+        their thesis is evaluated in.
+    """
+    defending_id: int
+    dissertation_id: int
+    student_id: int
+
+
+@bind_database(obj_id_row='has_id')
+@dataclass
+class Has:
+    """
+    Represents who owns a thesis.
+    """
+    has_id: int
+    thesis_id: int
+    student_id: int
+
+
+@bind_database(obj_id_row='evaluation_id')
+@dataclass
+class Evaluation:
+    """
+    Represents an evaluation by a jury member on
+        a specific dissertation.
+    """
+    evaluation_id: int
+    jury_id: int
+    evaluation: str
 
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
@@ -215,7 +305,20 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
         return None
     user_ = class_type.fetch(user_id)
     dict_ = asdict(user_)  # Get the user information as a dictionary.
+    if class_type == Student:
+        dict_['latest_thesis_id'] = user_.latest_thesis_id
     del dict_['password']  # Delete password information.
+    convert_department(dict_)
     return dict_
 
 
+def convert_department(user_dict: dict) -> None:
+    """
+    Given a user dataclass' dictionary representation,
+        convert the department_id field to department
+        and its key to the name of the department.
+    """
+    department_id = user_dict['department_id']
+    department_name = Department.fetch(int(department_id)).department_name
+    del user_dict['department_id']
+    user_dict['department'] = department_name

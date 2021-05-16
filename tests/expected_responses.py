@@ -1,3 +1,5 @@
+from hashlib import md5
+
 expected_student = {
   "role": "student",
   "username": "Barbara",
@@ -7,13 +9,16 @@ expected_student = {
     "name_": "Barbara",
     "surname": "Liskov",
     "email": "studenttest2@std.iyte.edu.tr",
+    "department": "Computer Engineering",
     "is_approved": 0,
     "has_proposed": 0,
     "semester": 2,
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
-    "jury_tss_decision": "NA"
+    "jury_tss_decision": "NA",
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1
   }
 }
 
@@ -40,13 +45,16 @@ expected_student_advisor = {
     "name_": "Scott",
     "surname": "Aaronson",
     "email": "studenttest@std.iyte.edu.tr",
+    "department": "Computer Engineering",
     "is_approved": 1,
     "has_proposed": 1,
     "semester": 2,
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
-    "jury_tss_decision": "NA"
+    "jury_tss_decision": "NA",
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1
   },
   "advisor": {
     "user_id": 1,
@@ -65,13 +73,16 @@ expected_student_get_0 = {
     "name_": "Scott",
     "surname": "Aaronson",
     "email": "studenttest@std.iyte.edu.tr",
+    "department": "Computer Engineering",
     "is_approved": 1,
     "has_proposed": 1,
     "semester": 2,
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
-    "jury_tss_decision": "NA"
+    "jury_tss_decision": "NA",
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1
 }
 
 expected_advisor_get_1 = {
@@ -110,3 +121,20 @@ expected_recommendations = [
     }
 
 ]
+
+
+expected_theses_list = [
+    0,
+    1
+]
+
+expected_thesis_metadata_get = {
+    "thesis_id": 0,
+    "plagiarism_ratio": 15,
+    "thesis_topic": "Artificial Intelligence",
+    "submission_date": 1621129273
+}
+
+expected_pdf_file_name = 'theses/grey_thesis_example0.pdf'
+
+expected_pdf_upload_resp = {'thesis_topic': 'Artificial Intelligence'}
