@@ -85,7 +85,6 @@ CREATE TABLE IF NOT EXISTS Thesis (
     file_path TEXT UNIQUE,
     plagiarism_ratio INTEGER,
     thesis_topic TEXT,
-    due_date INTEGER,
     submission_date INTEGER
 );
 
@@ -204,3 +203,14 @@ INSERT INTO User_ VALUES (15, 'Sophia', 'Leonides', '$pbkdf2-sha256$29000$xNh7j3
 INSERT INTO Student VALUES (15, FALSE, FALSE, 2, 'Computer Engineering', NULL, 'NA', 'NA', FALSE);
 
 INSERT INTO Recommended VALUES (2, 15, 9);
+
+
+/** THESIS TEST USERS */
+INSERT INTO USER_ VALUES (16, 'Ariadne', 'Oliver', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'oliver@iyte.edu.tr', 0);
+INSERT INTO Advisor VALUES (16, 'Character Encoding');
+INSERT INTO User_ VALUES (17, 'Jane', 'Grey', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'grey@std.iyte.edu.tr', 0);
+INSERT INTO Student VALUES (17, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
+INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 15, 'Artificial Intelligence', 1621129273);
+INSERT INTO Has VALUES (0, 0, 17); /** Add an example thesis.*/
+INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
+INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/

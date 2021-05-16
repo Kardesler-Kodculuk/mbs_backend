@@ -1,17 +1,19 @@
 """
 This file includes the app routes.
 """
+import os.path
 from datetime import datetime, timezone, timedelta
+from json import dumps
 from logging import debug
 from os import getenv, urandom
 from typing import Tuple, Union
 from flask_cors import CORS
-from flask import Flask, g, request, jsonify, send_from_directory
+from flask import Flask, g, request, jsonify, send_from_directory, Response, send_file
 from flask_jwt_extended import JWTManager, jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies, get_jwt_identity, get_jwt
 from dataclasses import asdict
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department
+    convert_department, Thesis
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
 from mbsbackend.server_internals.verification import returns_json, full_json, requires_json
@@ -287,5 +289,49 @@ def create_app() -> Flask:
             return {"msg": "Only the advisors can see their proposals."}, 403
         students = advisor.students
         return students, 200
+
+    @app.route('/theses', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_student_theses() -> Tuple[Union[list, dict], int]:
+        """
+        Get a list of Theses uploaded so far by a student.
+        """
+        student = current_user.downcast()
+        if not isinstance(student, Student):
+            return {"msg": "Not authorised for this action."}, 403
+        theses = student.theses
+        return [thesis.thesis_id for thesis in theses], 200
+
+    @app.route('/theses/<thesis_id>/metadata', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_thesis_metadata(thesis_id) -> Tuple[dict, int]:
+        """
+        Get metadata about a specific thesis.
+        """
+        thesis_id = int(thesis_id)
+        if not Thesis.has(thesis_id):
+            return {"msg": "Thesis not found."}, 404
+        # TODO: If there is time we should check further for user's identity as well.
+        thesis = Thesis.fetch(thesis_id)
+        thesis_info = asdict(thesis)
+        del thesis_info['file_path']  # It is better if the user is unaware of this.
+        return thesis_info, 200
+
+    @app.route('/theses/<thesis_id>', methods=['GET'])
+    @jwt_required()
+    def get_thesis_file(thesis_id) -> Response:
+        """
+        Get the actual file of the thesis that is requested.
+        """
+        thesis_id = int(thesis_id)
+        if not Thesis.has(thesis_id):
+            return Response(dumps({"msg": "Thesis not found."}), status=404, mimetype='application/json')
+        # TODO: If there is time we should check further for user's identity as well.
+        thesis = Thesis.fetch(thesis_id)
+        thesis_info = asdict(thesis)
+        thesis_path = thesis_info['file_path']  # It is better if the user is unaware of this.
+        return send_file(os.path.join(os.getcwd(), thesis_path), mimetype='application/pdf')
 
     return app

@@ -1,3 +1,5 @@
+from hashlib import md5
+
 expected_student = {
   "role": "student",
   "username": "Barbara",
@@ -116,3 +118,18 @@ expected_recommendations = [
     }
 
 ]
+
+
+expected_theses_list = [
+    0,
+    1
+]
+
+expected_thesis_metadata_get = {
+    "thesis_id": 0,
+    "plagiarism_ratio": 15,
+    "thesis_topic": "Artificial Intelligence",
+    "submission_date": 1621129273
+}
+
+expected_pdf_file_name = 'theses/grey_thesis_example0.pdf'

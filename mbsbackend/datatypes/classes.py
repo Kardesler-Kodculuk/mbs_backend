@@ -157,7 +157,6 @@ class Jury(User_):
     is_appointed: bool
 
 
-
 @bind_database(obj_id_row='student_id')
 @dataclass
 class Student(User_):
@@ -196,6 +195,18 @@ class Student(User_):
             recommendations.extend(Recommended.fetch_where('student_id', self.student_id))
         return recommendations  # Return the list.
 
+    @property
+    def theses(self) -> List["Thesis"]:
+        """
+        Return the list of Theses uploaded by this
+            Student user.
+        """
+        theses_ids: List[int] = []
+        if Has.has_where('student_id', self.student_id):  # If the user has uploaded any theses' yet.
+            theses_ids.extend([has_relationship.thesis_id
+                               for has_relationship in Has.fetch_where('student_id', self.student_id)])
+        return [Thesis.fetch(thesis_id) for thesis_id in theses_ids]
+
 
 @bind_database(obj_id_row='thesis_id')
 @dataclass
@@ -208,7 +219,6 @@ class Thesis:
     file_path: str
     plagiarism_ratio: int
     thesis_topic: str
-    due_date: int
     submission_date: int
 
 
