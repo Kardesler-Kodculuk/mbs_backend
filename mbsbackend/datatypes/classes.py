@@ -207,6 +207,15 @@ class Student(User_):
                                for has_relationship in Has.fetch_where('student_id', self.student_id)])
         return [Thesis.fetch(thesis_id) for thesis_id in theses_ids]
 
+    @property
+    def latest_thesis_id(self) -> int:
+        theses_ = self.theses
+        theses_.sort(key=lambda thesis: thesis.submission_date)
+        theses_.reverse()
+        if theses_:
+            return theses_[0].thesis_id
+        else:
+            return -1
 
 @bind_database(obj_id_row='thesis_id')
 @dataclass
@@ -296,6 +305,8 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
         return None
     user_ = class_type.fetch(user_id)
     dict_ = asdict(user_)  # Get the user information as a dictionary.
+    if class_type == Student:
+        dict_['latest_thesis_id'] = user_.latest_thesis_id
     del dict_['password']  # Delete password information.
     convert_department(dict_)
     return dict_

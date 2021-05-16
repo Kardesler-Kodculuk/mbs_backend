@@ -108,7 +108,7 @@ class TestUploadThesis(flask_unittest.ClientTestCase):
 
 class TestDeleteThesis(flask_unittest.ClientTestCase):
     """
-    Test if a student upload a new thesis file.
+    Test if a student can delete an existing thesis file.
     """
     app = create_app()
 
@@ -138,3 +138,33 @@ class TestDeleteThesis(flask_unittest.ClientTestCase):
             self.assertIsNone(cur.fetchone())
             cur.execute(f"SELECT * FROM Has WHERE thesis_id = {thesis_id}")
             self.assertIsNone(cur.fetchone())
+
+
+class TestLatestThesisID(flask_unittest.ClientTestCase):
+    """
+    Test if the student's latest_thesis_id field is functioning correctly.
+    """
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "grey@std.iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_latest_thesis_id(self, client: FlaskClient) -> None:
+        student_info = client.get('/users').json['student']
+        self.assertEqual(student_info['latest_thesis_id'], 1)
+        data = {}  # Upload to see change.
+        with open('tests/example_pdfs/grey_thesis_delete_example.pdf', 'rb') as fp:
+            data['file'] = (fp, 'grey_thesis_delete_example.pdf')
+            resp = client.post('/theses', content_type='multipart/form-data',
+                               data=data)  # We are expecting a list of thesis ids.
+        json_response = resp.json
+        thesis_id = json_response['thesis_id']
+        student_info = client.get('/users').json['student']
+        self.assertEqual(student_info['latest_thesis_id'], thesis_id)  # Check if the thesis id changed.
+        resp = client.delete(f'/theses/{thesis_id}')
+        student_info = client.get('/users').json['student']
+        self.assertEqual(student_info['latest_thesis_id'], 1)  # Now it should be back to 1.

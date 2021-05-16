@@ -111,10 +111,12 @@ def create_app() -> Flask:
             user_info['role'] = 'student'  # Set the role.
             user_info['student'] = asdict(user)
             user_info['username'] = user_info['student']['name_']  # Remove in Production. Backward Compatibility.
+            user_info['student']['latest_thesis_id'] = user.latest_thesis_id
             user_info['advisor'] = asdict(user.advisor)
         elif isinstance(user, Student) and not user.advisor:
             user_info['role'] = 'student'
             user_info['student'] = asdict(user)
+            user_info['student']['latest_thesis_id'] = user.latest_thesis_id
             user_info['username'] = user_info['student']['name_']  # Remove in Production. Backward Compatibility.
             user_info['username'] = user.name_
         elif isinstance(user, Advisor):

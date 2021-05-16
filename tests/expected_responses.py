@@ -17,7 +17,8 @@ expected_student = {
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
     "jury_tss_decision": "NA",
-    "is_thesis_sent": 0
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1
   }
 }
 
@@ -52,7 +53,8 @@ expected_student_advisor = {
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
     "jury_tss_decision": "NA",
-    "is_thesis_sent": 0
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1
   },
   "advisor": {
     "user_id": 1,
@@ -79,7 +81,8 @@ expected_student_get_0 = {
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
     "jury_tss_decision": "NA",
-    "is_thesis_sent": 0
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1
 }
 
 expected_advisor_get_1 = {
