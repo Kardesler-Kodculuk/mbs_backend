@@ -39,6 +39,7 @@ CREATE TABLE IF NOT EXISTS Student (
     thesis_topic TEXT,
     graduation_status TEXT,
     jury_tss_decision TEXT,
+    is_thesis_sent BOOLEAN,
     FOREIGN KEY(student_id) REFERENCES User_(user_id)
 );
 
@@ -134,7 +135,7 @@ CREATE TABLE IF NOT EXISTS Evaluation (
     between each other.
  */
 INSERT INTO USER_ VALUES (0, 'Scott', 'Aaronson', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (0, TRUE, TRUE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
+INSERT INTO Student VALUES (0, TRUE, TRUE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA', FALSE);
 INSERT INTO USER_ VALUES (1, 'Kathleen', 'Booth', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'advisortest@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (1, 'Systems Programming');
 INSERT INTO Instructor VALUES (0, 0, 1);
@@ -148,9 +149,9 @@ INSERT INTO Department VALUES (0, 'Computer Engineering');
 INSERT INTO USER_ VALUES (3, 'Harry', 'Bouwman', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'bouwman@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (3, 'Operating Systems');
 INSERT INTO USER_ VALUES (4, 'Sherlock', 'Holmes', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'holmes@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (4, FALSE, TRUE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
+INSERT INTO Student VALUES (4, FALSE, TRUE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA', FALSE);
 INSERT INTO USER_ VALUES (5, 'John', 'Watson', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'watson@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (5, FALSE, TRUE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
+INSERT INTO Student VALUES (5, FALSE, TRUE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA', FALSE);
 INSERT INTO Proposal VALUES (0, 4, 3);
 INSERT INTO Proposal VALUES (1, 5, 3);
 
@@ -159,16 +160,16 @@ INSERT INTO Proposal VALUES (1, 5, 3);
   This is a student without an advisor, but she is recommended two.
  */
 INSERT INTO User_ VALUES (2, 'Barbara', 'Liskov', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'studenttest2@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (2, FALSE, FALSE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA');
+INSERT INTO Student VALUES (2, FALSE, FALSE, 2, 'Computer Engineering', 'Graph Visualisation', 'NA', 'NA', FALSE);
 INSERT INTO Recommended VALUES (0, 2, 1);
 INSERT INTO Recommended VALUES (1, 2, 3);
 
 INSERT INTO USER_ VALUES (6, 'Conan', 'Doyle', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'doyle@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (6, 'Operating Systems');
 INSERT INTO User_ VALUES (7, 'James', 'Moriarty', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'moriarty@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (7, TRUE, TRUE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
+INSERT INTO Student VALUES (7, TRUE, TRUE, 2, 'Computer Engineering', NULL, 'NA', 'NA', FALSE);
 INSERT INTO User_ VALUES (8, 'Mycroft', 'Holmes', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'holmes2@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (8, TRUE, TRUE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
+INSERT INTO Student VALUES (8, TRUE, TRUE, 2, 'Computer Engineering', NULL, 'NA', 'NA', FALSE);
 INSERT INTO Instructor VALUES(1, 7, 6);
 INSERT INTO Instructor VALUES(2, 8, 6);
 
@@ -183,15 +184,15 @@ INSERT INTO Instructor VALUES(2, 8, 6);
 INSERT INTO USER_ VALUES (9, 'Agatha', 'Christie', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'christie@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (9, 'Operating Systems');
 INSERT INTO User_ VALUES (10, 'Hercule', 'Poirot', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'poirot@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (10, FALSE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA');
+INSERT INTO Student VALUES (10, FALSE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
 INSERT INTO User_ VALUES (11, 'Arthur', 'Hastings', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'hastings@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (11, FALSE, TRUE, 2, 'Computer Engineering', 'Robotics', 'NA', 'NA');
+INSERT INTO Student VALUES (11, FALSE, TRUE, 2, 'Computer Engineering', 'Robotics', 'NA', 'NA', FALSE);
 INSERT INTO User_ VALUES (12, 'Jane', 'Marple', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'marple@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (12, FALSE, TRUE, 2, 'Computer Engineering', 'Fault Tollerance', 'NA', 'NA');
+INSERT INTO Student VALUES (12, FALSE, TRUE, 2, 'Computer Engineering', 'Fault Tollerance', 'NA', 'NA', FALSE);
 INSERT INTO User_ VALUES (13, 'Harold', 'Japp', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'japp@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (13, FALSE, TRUE, 2, 'Computer Engineering', 'Embedded Systems', 'NA', 'NA');
+INSERT INTO Student VALUES (13, FALSE, TRUE, 2, 'Computer Engineering', 'Embedded Systems', 'NA', 'NA', FALSE);
 INSERT INTO User_ VALUES (14, 'Raymond', 'West', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'west@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (14, FALSE, TRUE, 2, 'Computer Engineering', 'Assembly Language', 'NA', 'NA');
+INSERT INTO Student VALUES (14, FALSE, TRUE, 2, 'Computer Engineering', 'Assembly Language', 'NA', 'NA', FALSE);
 
 INSERT INTO Proposal VALUES (2, 10, 9);
 INSERT INTO Proposal VALUES (3, 11, 9);
@@ -200,6 +201,6 @@ INSERT INTO Proposal VALUES (5, 13, 9);
 INSERT INTO Proposal VALUES (6, 14, 9);
 
 INSERT INTO User_ VALUES (15, 'Sophia', 'Leonides', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'leonides@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (15, FALSE, FALSE, 2, 'Computer Engineering', NULL, 'NA', 'NA');
+INSERT INTO Student VALUES (15, FALSE, FALSE, 2, 'Computer Engineering', NULL, 'NA', 'NA', FALSE);
 
 INSERT INTO Recommended VALUES (2, 15, 9);

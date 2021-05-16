@@ -173,6 +173,7 @@ class Student(User_):
     thesis_topic: str
     graduation_status: str
     jury_tss_decision: str
+    is_thesis_sent: bool
 
     @property
     def advisor(self) -> Optional[Advisor]:
