@@ -163,15 +163,26 @@ def create_app() -> Flask:
         """
         user = current_user.downcast()
         id_ = int(student_id)
-        if not isinstance(user, Student) and user.student_id != student_id:
+        if not Student.has(id_):
+            return {"msg": "No such student."}, 404
+        student = Student.fetch(id_)
+        if isinstance(user, Student) and user.student_id == id_:
+            payload = request.json
+            acceptable_fields = [field for field in payload if
+                                 field not in forbidden_fields["Student"] and field in Student.__dataclass_fields__]
+            for field in acceptable_fields:
+                setattr(user, field, payload[field])  # Update the field of the user.
+            user.update()  # Update it in the database.
+        elif isinstance(user, Advisor) and user.advisor_id == student.advisor.advisor_id:
+            payload = request.json
+            acceptable_fields = [field for field in payload if
+                                 field not in forbidden_fields["StudentAdvisor"] and field in Student.__dataclass_fields__]
+            for field in acceptable_fields:
+                setattr(student, field, payload[field])  # Update the field of the user.
+            student.update()  # Update it in the database.
+        else:
             return {"msg": "Unauthorised"}, 401
-        payload = request.json
-        acceptable_fields = [field for field in payload if
-                             field not in forbidden_fields["Student"] and field in Student.__dataclass_fields__]
-        for field in acceptable_fields:
-            setattr(user, field, payload[field])  # Update the field of the user.
-        user.update()  # Update it in the database.
-        return get_user(Student, user.user_id), 200
+        return get_user(Student, student.user_id), 200
 
     @app.route('/advisors/<advisor_id>', methods=["GET"])
     @returns_json

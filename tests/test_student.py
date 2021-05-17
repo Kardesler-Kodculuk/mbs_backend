@@ -69,3 +69,13 @@ class TestUpdateStudentThesisInvalidJSON(flask_unittest.ClientTestCase):
         # Let us check the return first.
         self.assertDictEqual(resp.json, {'msg': 'ERROR: Expected valid JSON in Request body.'})
 
+
+class TestAdvisorUpdateStudentThesis(TestUpdateStudentThesis):
+    """
+    Test if the advisor can update a student's thesis.
+    """
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "advisortest@iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
