@@ -32,9 +32,7 @@ CREATE TABLE IF NOT EXISTS JURY (
 
 CREATE TABLE IF NOT EXISTS DBR (
     dbr_id INTEGER PRIMARY KEY,
-    department_id INTEGER,
-    FOREIGN KEY(dbr_id) REFERENCES User_(user_id),
-    FOREIGN KEY(department_id) REFERENCES Department(department_id)
+    FOREIGN KEY(dbr_id) REFERENCES User_(user_id)
 );
 
 CREATE TABLE IF NOT EXISTS Student (
@@ -221,3 +219,13 @@ INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 15, 'Artificial
 INSERT INTO Has VALUES (0, 0, 17); /** Add an example thesis.*/
 INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
 INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/
+
+/** DBR Test Users */
+INSERT INTO Department VALUES (1, 'Physics');
+INSERT INTO Department VALUES (2, 'Not Available');
+INSERT INTO User_ VALUES (18, 'Roddy', 'Welman', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'welman@pers.iyte.edu.tr', 0);
+INSERT INTO DBR VALUES (18);
+INSERT INTO User_ VALUES (19, 'Peter', 'Lord', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'lord@pers.iyte.edu.tr', 1);
+INSERT INTO DBR VALUES (19);
+INSERT INTO User_ VALUES (20, 'Eileen', 'O''Brien', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'obrien@metu.edu.tr', 2);
+INSERT INTO Jury VALUES (20, TRUE, 'Middle Eastern Technical University', '+90 5XX XXX XX XX', TRUE);

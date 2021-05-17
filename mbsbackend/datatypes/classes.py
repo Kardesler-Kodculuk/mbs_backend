@@ -100,7 +100,7 @@ class User_:
         :param user: A variable of type user.
         :return the downcasted object.
         """
-        possibilities: List[type] = [Advisor, Student]
+        possibilities: List[type] = [Advisor, Student, DBR, Jury]
         for possibility in possibilities:
             if possibility.has(self.user_id):  # If user belongs to this class, we can fetch it.
                 return possibility.fetch(self.user_id)
@@ -217,6 +217,7 @@ class Student(User_):
         else:
             return -1
 
+
 @bind_database(obj_id_row='thesis_id')
 @dataclass
 class Thesis:
@@ -293,12 +294,11 @@ class Evaluation:
 
 @bind_database(obj_id_row='dbr_id')
 @dataclass
-class DBR:
+class DBR(User_):
     """
     Departmental Board Representative.
     """
     dbr_id: int
-    department_id: int
 
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:

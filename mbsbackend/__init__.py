@@ -17,7 +17,7 @@ from dataclasses import asdict
 from werkzeug.utils import secure_filename
 
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department, Thesis, Has
+    convert_department, Thesis, Has, DBR, Jury
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
@@ -123,6 +123,14 @@ def create_app() -> Flask:
             user_info['role'] = 'advisor'
             user_info['advisor'] = asdict(user)
             user_info['username'] = user_info['advisor']['name_']  # Remove in Production. Backward Compatibility.
+        elif isinstance(user, DBR):
+            user_info['role'] = 'DBR'
+            user_info['DBR'] = asdict(user)
+            user_info['username'] = user_info['DBR']['name_']
+        elif isinstance(user, Jury):
+            user_info['role'] = 'jury'
+            user_info['jury'] = asdict(user)
+            user_info['username'] = user_info['jury']['name_']
         else:
             return {"message": "Invalid user type"}, 400
         for key in user_info:

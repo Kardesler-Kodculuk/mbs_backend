@@ -138,3 +138,33 @@ expected_thesis_metadata_get = {
 expected_pdf_file_name = 'theses/grey_thesis_example0.pdf'
 
 expected_pdf_upload_resp = {'thesis_topic': 'Artificial Intelligence'}
+
+expected_dbr = {
+    "role": "DBR",
+    "username": "Roddy",
+    "DBR": {
+        "user_id": 18,
+        "dbr_id": 18,
+        "name_": "Roddy",
+        "surname": "Welman",
+        "email": "welman@pers.iyte.edu.tr",
+        "department": "Computer Engineering"
+    }
+}
+
+expected_jury = {
+    "role": "jury",
+    "username": "Eileen",
+    "jury": {
+        "user_id": 20,
+        "jury_id": 20,
+        "is_approved": 1,
+        "name_": "Eileen",
+        "surname": "O'Brien",
+        "email": "obrien@metu.edu.tr",
+        "department": "Not Available",
+        "institution": "Middle Eastern Technical University",
+        "phone_number": "+90 5XX XXX XX XX",
+        "is_appointed": 1
+    }
+}
