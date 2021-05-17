@@ -169,12 +169,43 @@ expected_jury = {
     }
 }
 
-expected_student_defending_list = [
-    15,
-    17
-]
+expected_student_defending_list = {
+    'students': [
 
-expected_student_department_list = [
-    21,
-    22
-]
+    ],
+    'defenders': [
+        15,
+        17
+    ]
+}
+
+expected_student_department_list = {
+    'students': [
+        21,
+        22
+    ],
+    'defenders': []
+}
+
+expected_jury_info = {
+        "user_id": 20,
+        "jury_id": 20,
+        "is_approved": 1,
+        "name_": "Eileen",
+        "surname": "O'Brien",
+        "email": "obrien@metu.edu.tr",
+        "department": "Not Available",
+        "institution": "Middle Eastern Technical University",
+        "phone_number": "+90 5XX XXX XX XX",
+        "is_appointed": 1
+    }
+
+expected_student_info_from_jury_advisor = {
+    'students': [
+        21,
+        22
+    ],
+    'defenders': [
+        22
+    ]
+}

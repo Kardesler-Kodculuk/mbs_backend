@@ -122,6 +122,9 @@ def create_app() -> Flask:
         elif isinstance(user, Advisor):
             user_info['role'] = 'advisor'
             user_info['advisor'] = asdict(user)
+            if user.jury_credentials:
+                user_info['role'] = 'jury_advisor'
+                user_info['jury'] = asdict(user.jury_credentials)
             user_info['username'] = user_info['advisor']['name_']  # Remove in Production. Backward Compatibility.
         elif isinstance(user, DBR):
             user_info['role'] = 'DBR'
@@ -312,10 +315,17 @@ def create_app() -> Flask:
         Get a list of Students managed by this advisor.
         """
         user = current_user.downcast()
+        return_dict = {"students": [], "defenders": []}
         if not any(isinstance(user, accepted) for accepted in (Advisor, DBR, Jury)):  # If the current user is not an advisor.
             return {"msg": "Only the advisors can see their proposals."}, 403
-        students = user.students  # All of these classes have a students property.
-        return students, 200
+        if any(isinstance(user, one_of) for one_of in (Advisor, DBR)):
+            return_dict['students'] = user.students
+        elif isinstance(user, Jury):
+            return_dict['defenders'] = user.students  # All of these classes have a students property.
+        if isinstance(user, Advisor) and user.jury_credentials:
+            jury_version = user.jury_credentials
+            return_dict['defenders'] = jury_version.students
+        return return_dict, 200
 
     @app.route('/theses', methods=['GET'])
     @returns_json
@@ -406,5 +416,20 @@ def create_app() -> Flask:
         metadata = asdict(new_thesis_metadata)
         del metadata['file_path']
         return metadata, 201
+
+    @app.route('/jury/<jury_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_jury(jury_id) -> Tuple[dict, int]:
+        """
+        Get a jury information given its id.
+
+        :param jury_id: ID of the Jury to get the information.
+        :return The jury member's credentials.
+        """
+        id_ = int(jury_id)
+        if not Jury.has(id_):
+            return {"msg": "Jury member not found."}, 404
+        return get_user(Jury, id_), 200
 
     return app

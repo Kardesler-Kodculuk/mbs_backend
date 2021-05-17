@@ -70,9 +70,9 @@ class TestGetManagedStudentIDs(flask_unittest.ClientTestCase):
     def tearDown(self, client: FlaskClient) -> None:
         client.delete('/jwt')  # Logout.
 
-    def test_get_recommendations(self, client: FlaskClient) -> None:
+    def test_get_managed_students(self, client: FlaskClient) -> None:
         resp = client.get('/students')
-        self.assertCountEqual(resp.json, [7, 8])
+        self.assertDictEqual(resp.json, {'students': [7, 8], 'defenders': []})
 
 
 class TestGetDefending(flask_unittest.ClientTestCase):

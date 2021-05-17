@@ -241,3 +241,16 @@ INSERT INTO Student VALUES (21, TRUE, TRUE, 2, 'Medieval History', 'Danelaw', 'N
 INSERT INTO User_ VALUES (22, 'Mary', 'Gerrard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'gerrard@std.iyte.edu.tr', 1);
 INSERT INTO Student VALUES (22, TRUE, TRUE, 2, 'Roman History', 'Third Century Crisis', 'NA', 'NA', FALSE);
 
+INSERT INTO User_ VALUES (23, 'Jessie', 'Hopkins', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'hopkins@iyte.edu.tr', 1);
+INSERT INTO Advisor VALUES (23, 'Bronze Age Collapse');
+INSERT INTO JURY VALUES (23, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
+
+INSERT INTO Instructor VALUES (3, 21, 23);
+INSERT INTO Instructor VALUES (4, 22, 23);
+INSERT INTO Dissertation VALUES (2, 1621129276, TRUE);
+INSERT INTO Member VALUES (2, 2, 23);
+INSERT INTO Defending VALUES (2, 2, 22);
+
+/**
+  * So second student defends a thesis and both are instructors to Jessie Hopkins
+ */

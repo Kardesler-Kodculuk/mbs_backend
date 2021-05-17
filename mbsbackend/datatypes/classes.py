@@ -142,6 +142,16 @@ class Advisor(User_):
         instructors = Instructor.fetch_where("advisor_id", self.advisor_id)  # Get Instructor entities.
         return [instructor.student_id for instructor in instructors]  # Get the student IDs from them.
 
+    @property
+    def jury_credentials(self) -> Optional["Jury"]:
+        """
+        Return Jury credentials of the Advisor if they exist,
+            ie: If an advisor is also a Jury member. Otherwise
+            return None.
+        """
+        if not Jury.has(self.advisor_id):
+            return None
+        return Jury.fetch(self.advisor_id)
 
 @bind_database(obj_id_row='jury_id')
 @dataclass
@@ -325,7 +335,7 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
     :param user_id: ID of the user.
     :return The user information as a dictionary or None if no such user exists.
     """
-    if class_type not in [Student, Advisor]:
+    if class_type not in [Student, Advisor, DBR, Jury]:
         raise InvalidUserClassException
     if not class_type.has(user_id):
         return None
