@@ -156,6 +156,15 @@ class Jury(User_):
     phone_number: str
     is_appointed: bool
 
+    @property
+    def students(self) -> List[int]:
+        if not Member.has_where('jury_id', self.jury_id):
+            return []
+        is_member_in: List[Member] = Member.fetch_where('jury_id', self.jury_id)
+        defending_relationships = [Defending.fetch_where('dissertation_id', member.dissertation_id)[0]
+                                   for member in is_member_in]
+        return [defending_relationship.student_id for defending_relationship in defending_relationships]
+
 
 @bind_database(obj_id_row='student_id')
 @dataclass
@@ -299,6 +308,13 @@ class DBR(User_):
     Departmental Board Representative.
     """
     dbr_id: int
+
+    @property
+    def students(self) -> List[int]:
+        if not Student.has_where('department_id', self.department_id):
+            return []
+        students = Student.fetch_where('department_id', self.department_id)
+        return [student.user_id for student in students]
 
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:

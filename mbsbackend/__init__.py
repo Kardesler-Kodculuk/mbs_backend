@@ -300,10 +300,10 @@ def create_app() -> Flask:
         """
         Get a list of Students managed by this advisor.
         """
-        advisor = current_user.downcast()
-        if not isinstance(advisor, Advisor):  # If the current user is not an advisor.
+        user = current_user.downcast()
+        if not any(isinstance(user, accepted) for accepted in (Advisor, DBR, Jury)):  # If the current user is not an advisor.
             return {"msg": "Only the advisors can see their proposals."}, 403
-        students = advisor.students
+        students = user.students  # All of these classes have a students property.
         return students, 200
 
     @app.route('/theses', methods=['GET'])

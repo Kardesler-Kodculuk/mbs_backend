@@ -221,7 +221,7 @@ INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 10, 'Artificial
 INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/
 
 /** DBR Test Users */
-INSERT INTO Department VALUES (1, 'Physics');
+INSERT INTO Department VALUES (1, 'History');
 INSERT INTO Department VALUES (2, 'Not Available');
 INSERT INTO User_ VALUES (18, 'Roddy', 'Welman', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'welman@pers.iyte.edu.tr', 0);
 INSERT INTO DBR VALUES (18);
@@ -229,3 +229,15 @@ INSERT INTO User_ VALUES (19, 'Peter', 'Lord', '$pbkdf2-sha256$29000$xNh7j3HunXM
 INSERT INTO DBR VALUES (19);
 INSERT INTO User_ VALUES (20, 'Eileen', 'O''Brien', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'obrien@metu.edu.tr', 2);
 INSERT INTO Jury VALUES (20, TRUE, 'Middle Eastern Technical University', '+90 5XX XXX XX XX', TRUE);
+INSERT INTO Dissertation VALUES (0, 1621129275, TRUE); /** Add a dissertation. */
+INSERT INTO Defending VALUES (0, 0, 17);
+INSERT INTO Dissertation VALUES (1, 1621129275, TRUE); /** Add a dissertation. */
+INSERT INTO Defending VALUES (1, 1, 15); /** Another one. */
+INSERT INTO Member VALUES (0, 0, 20);
+INSERT INTO Member VALUES (1, 1, 20);
+
+INSERT INTO User_ VALUES (21, 'Elinor Katharine', 'Carlisle', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'katharine@std.iyte.edu.tr', 1);
+INSERT INTO Student VALUES (21, TRUE, TRUE, 2, 'Medieval History', 'Danelaw', 'NA', 'NA', FALSE);
+INSERT INTO User_ VALUES (22, 'Mary', 'Gerrard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'gerrard@std.iyte.edu.tr', 1);
+INSERT INTO Student VALUES (22, TRUE, TRUE, 2, 'Roman History', 'Third Century Crisis', 'NA', 'NA', FALSE);
+

@@ -168,3 +168,13 @@ expected_jury = {
         "is_appointed": 1
     }
 }
+
+expected_student_defending_list = [
+    15,
+    17
+]
+
+expected_student_department_list = [
+    21,
+    22
+]
