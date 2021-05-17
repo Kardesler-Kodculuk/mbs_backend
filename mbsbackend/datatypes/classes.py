@@ -291,6 +291,16 @@ class Evaluation:
     evaluation: str
 
 
+@bind_database(obj_id_row='dbr_id')
+@dataclass
+class DBR:
+    """
+    Departmental Board Representative.
+    """
+    dbr_id: int
+    department_id: int
+
+
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
     """
     Get a user's information excluding the password.

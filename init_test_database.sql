@@ -30,6 +30,13 @@ CREATE TABLE IF NOT EXISTS JURY (
     FOREIGN KEY(jury_id) REFERENCES User_(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS DBR (
+    dbr_id INTEGER PRIMARY KEY,
+    department_id INTEGER,
+    FOREIGN KEY(dbr_id) REFERENCES User_(user_id),
+    FOREIGN KEY(department_id) REFERENCES Department(department_id)
+);
+
 CREATE TABLE IF NOT EXISTS Student (
     student_id INTEGER PRIMARY KEY,
     is_approved BOOLEAN,
