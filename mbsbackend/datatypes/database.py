@@ -355,6 +355,18 @@ def bind_database(obj_id_row: str):
                                                    f" {rows_clause} VALUES {values_clause}")
                 setattr(self, self._obj_id_row, global_query_handler.last_inserted_row_id())  # Set the id correctly.
 
+            @classmethod
+            def create_unique(cls, values: list) -> "DatabaseBound":
+                """
+                Create a class given all the info including the ID row. Where ID row is the first member.
+                """
+                fields = unique_.copy()
+                rows_clause = '(' + ', '.join(fields) + ')'
+                values_clause = '(' + ', '.join(_stringfy(value) for value in values) + ')'
+                global_query_handler.execute_query(f"INSERT INTO {cls._table_name}"
+                                                   f" {rows_clause} VALUES {values_clause}")
+                return cls.fetch(values[0])
+
             def delete(self) -> None:
                 """
                 Delete this object from the bound database. This only works

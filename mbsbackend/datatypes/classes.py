@@ -16,7 +16,23 @@ class StudentAlreadyHasAdvisorException(Exception):
 
 class InvalidUserClassException(Exception):
     """
-    Raised when the attempted class is not a user class.
+    Raises when the attempted class is not a user class.
+    """
+    pass
+
+
+class JuryMemberDoesNotExistException(Exception):
+    """
+    Raises when a jury member referred with their id does not
+        exist.
+    """
+    pass
+
+
+class InvalidStudentState(Exception):
+    """
+    Student is not in a valid state for this operation
+        to happen.
     """
     pass
 
@@ -178,9 +194,10 @@ class Jury(User_):
 
     @classmethod
     def add_new_jury(cls, user_args, jury_args):
-        User_(*user_args).create()
-        new_jury = Jury(*user_args, *jury_args)
-        new_jury.create()
+        user = User_(*user_args)
+        user.create()
+        jury_args[0] = user.user_id
+        new_jury = Jury.create_unique(jury_args)
         return new_jury
 
 @bind_database(obj_id_row='student_id')
@@ -259,6 +276,24 @@ class Student(User_):
         dissertation_info = dissertation.get_info(self.student_id)
         return dissertation_info
 
+    def create_dissertation_for(self, jury_members: List[int], dissertation_date: int) -> Optional["Dissertation"]:
+        """
+        Create a new dissertation for this student.
+        :param jury_members: IDs of the jury members that shall defend this dissertation.
+        :param dissertation_date: Date of the dissertation.
+        :return the generated dissertation object or None if one jury member is not found.
+        """
+        if not all(Jury.has(jury_id) for jury_id in jury_members):
+            return None
+        new_dissertation = Dissertation(-1, dissertation_date, False)
+        new_dissertation.create()
+        for jury_id in jury_members:
+            new_member = Member(-1, new_dissertation.dissertation_id, jury_id)
+            new_member.create()
+        defending = Defending(-1, new_dissertation.dissertation_id, self.student_id)
+        defending.create()
+        return new_dissertation
+
 
 @bind_database(obj_id_row='thesis_id')
 @dataclass
@@ -301,6 +336,18 @@ class Dissertation:
         else:
             dissertation_info['status'] = Evaluation.get_consensus(self.dissertation_id, len(jury_ids))
         return dissertation_info
+
+    def delete_dissertation(self):
+        """
+        Delete a dissertation alongside with
+            its associated objects.
+        """
+        defending = Defending.fetch_where('dissertation_id', self.dissertation_id)
+        defending[0].delete()
+        members = Member.fetch_where('dissertation_id', self.dissertation_id)
+        for member in members:
+            member.delete()
+        self.delete()
 
 
 @bind_database(obj_id_row='member_id')

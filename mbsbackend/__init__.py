@@ -17,7 +17,7 @@ from dataclasses import asdict
 from werkzeug.utils import secure_filename
 
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department, Thesis, Has, DBR, Jury
+    convert_department, Thesis, Has, DBR, Jury, Dissertation, Defending
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
@@ -491,4 +491,70 @@ def create_app() -> Flask:
         else:
             return {"msg": "Student does not have a dissertation."}, 404
 
+    @app.route('/dissertation/<student_id>', methods=['POST'])
+    @full_json(required_keys=('jury_members', 'dissertation_date'))
+    @jwt_required()
+    def create_new_dissertation(student_id) -> Tuple[dict, int]:
+        """
+        Create a new dissertation.
+
+        :param student_id: Student ID of the Student whose dissertation
+         we creating.
+        """
+        id_ = int(student_id)
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):
+            return {'msg': 'Requries advisor user to do this.'}, 403
+        elif not Student.has(id_):
+            return {'msg': 'Student not found.'}, 404
+        student = Student.fetch(id_)
+        if student.advisor.advisor_id != advisor.advisor_id:
+            return {"msg": "Not the advisor of this student."}, 403
+        elif student.dissertation:
+            return {"msg": "Student already has one [possibly proposed] dissertation."}, 409
+        dissertation = student.create_dissertation_for(request.json['jury_members'], request.json['dissertation_date'])
+        if dissertation is None:
+            return {"msg": "Jury member not found"}, 404
+        return {"msg": "Dissertation is created."}, 201
+
+    @app.route('/dissertation/<student_id>', methods=['DELETE'])
+    @jwt_required()
+    def reject_dissertation(student_id) -> Tuple[dict, int]:
+        """
+        Reject a dissertation proposal.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if not isinstance(user, DBR) or student.department_id != user.department_id:
+            return {"msg": "You are unauthorised for this action."}, 403
+        if student.dissertation:
+            dissertation = Dissertation.fetch(Defending.fetch_where('student_id', student.student_id)[0].dissertation_id)
+            if dissertation.is_approved:
+                return {"msg": "Cannot reject an approved dissertation."}, 409
+            dissertation.delete_dissertation()  # Delete the object.
+        return {"msg": "Dissertation object no longer exists."}, 204
+
+    @app.route('/dissertation/<student_id>', methods=['PUT'])
+    @jwt_required()
+    def accept_dissertation_proposal(student_id) -> Tuple[dict, int]:
+        """
+        Accept a dissertation proposal.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if not isinstance(user, DBR) or student.department_id != user.department_id:
+            return {"msg": "You are unauthorised for this action."}, 403
+        if student.dissertation:
+            dissertation = Dissertation.fetch(Defending.fetch_where('student_id', student.student_id)[0].dissertation_id)
+            dissertation.is_approved = True
+            dissertation.update()  # Delete the object.
+            return student.dissertation, 200
+        else:
+            return {"msg": "Student does not have dissertation"}, 409
     return app

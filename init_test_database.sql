@@ -213,12 +213,14 @@ INSERT INTO Recommended VALUES (2, 15, 9);
 /** THESIS TEST USERS */
 INSERT INTO USER_ VALUES (16, 'Ariadne', 'Oliver', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'oliver@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (16, 'Character Encoding');
+INSERT INTO Jury VALUES (16, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 INSERT INTO User_ VALUES (17, 'Jane', 'Grey', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'grey@std.iyte.edu.tr', 0);
 INSERT INTO Student VALUES (17, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
 INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 15, 'Artificial Intelligence', 1621129273);
 INSERT INTO Has VALUES (0, 0, 17); /** Add an example thesis.*/
 INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
 INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/
+INSERT INTO Instructor VALUES (5, 17, 16);
 
 /** DBR Test Users */
 INSERT INTO Department VALUES (1, 'History');
@@ -229,6 +231,7 @@ INSERT INTO User_ VALUES (19, 'Peter', 'Lord', '$pbkdf2-sha256$29000$xNh7j3HunXM
 INSERT INTO DBR VALUES (19);
 INSERT INTO User_ VALUES (20, 'Eileen', 'O''Brien', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'obrien@metu.edu.tr', 2);
 INSERT INTO Jury VALUES (20, TRUE, 'Middle Eastern Technical University', '+90 5XX XXX XX XX', TRUE);
+
 INSERT INTO Dissertation VALUES (0, 1621129275, TRUE); /** Add a dissertation. */
 INSERT INTO Defending VALUES (0, 0, 17);
 INSERT INTO Dissertation VALUES (1, 1621129275, TRUE); /** Add a dissertation. */
@@ -264,3 +267,12 @@ INSERT INTO Member VALUES (3, 2, 20);
 /**
   * So second student defends a thesis and both are instructors to Jessie Hopkins
  */
+
+INSERT INTO Dissertation VALUES (3, 1621129276, FALSE);
+INSERT INTO Member VALUES (4, 3, 23);
+INSERT INTO Defending VALUES (3, 3, 21);
+INSERT INTO Member VALUES (5, 3, 20);
+
+INSERT INTO User_ VALUES (26, 'Bob', 'Nathan', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'nathan@std.iyte.edu.tr', 0);
+INSERT INTO Student VALUES (26, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
+INSERT INTO Instructor VALUES (6, 26, 16);

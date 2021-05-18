@@ -206,7 +206,8 @@ expected_student_info_from_jury_advisor = {
         22
     ],
     'defenders': [
-        22
+        22,
+        21
     ]
 }
 
@@ -228,4 +229,20 @@ jury_add_command = {
     "email": "grey@iyte.edu.tr",
     "institution": "Miskatonic University",
     "phone_number": "+90 5XX XXX XX XX"
+}
+
+dissertation_add_json = {
+    "jury_members": [
+        16
+    ],
+    "dissertation_date": 234243
+}
+
+dissertation_expected_json = {
+    "jury_ids": [
+        16
+    ],
+    "jury_date": 234243,
+    "status": "Pending",
+    "student_id": 26
 }
