@@ -138,3 +138,111 @@ expected_thesis_metadata_get = {
 expected_pdf_file_name = 'theses/grey_thesis_example0.pdf'
 
 expected_pdf_upload_resp = {'thesis_topic': 'Artificial Intelligence'}
+
+expected_dbr = {
+    "role": "DBR",
+    "username": "Roddy",
+    "DBR": {
+        "user_id": 18,
+        "dbr_id": 18,
+        "name_": "Roddy",
+        "surname": "Welman",
+        "email": "welman@pers.iyte.edu.tr",
+        "department": "Computer Engineering"
+    }
+}
+
+expected_jury = {
+    "role": "jury",
+    "username": "Eileen",
+    "jury": {
+        "user_id": 20,
+        "jury_id": 20,
+        "is_approved": 1,
+        "name_": "Eileen",
+        "surname": "O'Brien",
+        "email": "obrien@metu.edu.tr",
+        "department": "Not Available",
+        "institution": "Middle Eastern Technical University",
+        "phone_number": "+90 5XX XXX XX XX",
+        "is_appointed": 1
+    }
+}
+
+expected_student_defending_list = {
+    'students': [
+
+    ],
+    'defenders': [
+        15,
+        17
+    ]
+}
+
+expected_student_department_list = {
+    'students': [
+        21,
+        22
+    ],
+    'defenders': []
+}
+
+expected_jury_info = {
+        "user_id": 20,
+        "jury_id": 20,
+        "is_approved": 1,
+        "name_": "Eileen",
+        "surname": "O'Brien",
+        "email": "obrien@metu.edu.tr",
+        "department": "Not Available",
+        "institution": "Middle Eastern Technical University",
+        "phone_number": "+90 5XX XXX XX XX",
+        "is_appointed": 1
+    }
+
+expected_student_info_from_jury_advisor = {
+    'students': [
+        21,
+        22
+    ],
+    'defenders': [
+        22,
+        21
+    ]
+}
+
+expected_dissertation = {
+    "student_id": 22,
+    "jury_ids": [
+        23,
+        20
+    ],
+    "jury_date": 1621129276,
+    "status": 'Undecided'
+}
+
+expected_jury_members = {"jury_members": [23, 24, 25]}
+
+jury_add_command = {
+    "name_": "Charlotte Froese",
+    "surname": "Fischer",
+    "email": "grey@iyte.edu.tr",
+    "institution": "Miskatonic University",
+    "phone_number": "+90 5XX XXX XX XX"
+}
+
+dissertation_add_json = {
+    "jury_members": [
+        16
+    ],
+    "dissertation_date": 234243
+}
+
+dissertation_expected_json = {
+    "jury_ids": [
+        16
+    ],
+    "jury_date": 234243,
+    "status": "Pending",
+    "student_id": 26
+}

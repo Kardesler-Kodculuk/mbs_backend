@@ -283,10 +283,10 @@ def bind_database(obj_id_row: str):
                 where_clause = f"{criteria} = {value}"
                 query = f"SELECT * FROM {cls._table_name} WHERE {where_clause}"
                 try:
-                    if len(global_query_handler.execute_query(query)) > 0:
+                    if len(cls.fetch_where(criteria, value)) > 0:
                         return True
                     return False
-                except:
+                except TypeError:
                     return False
 
             @classmethod
@@ -321,7 +321,7 @@ def bind_database(obj_id_row: str):
                     empty, that fit the criteria given.
                 """
                 object_ids: List[int] = []  # This is where ids of the objects will go.
-                if criteria in cls.__dataclass_fields__:
+                if criteria in cls._unique_fields:
                     query = f"SELECT {cls._obj_id_row} FROM {cls._table_name}" \
                             f" WHERE {criteria} = " + _stringfy(value)
                     matches = global_query_handler.execute_query(query)
@@ -334,16 +334,17 @@ def bind_database(obj_id_row: str):
                     if criteria in cls._table_inheritance[type_]:  # If the criteria is in this table.
                         # If criteria appears at last in this parent type, query this parent type.
                         matches = global_query_handler.execute_query(f"SELECT {type_._obj_id_row}"
-                                                                     f"FROM {type_._table_name}"
-                                                                     f"WHERE {criteria} = {_stringfy(value)}")
+                                                                     f" FROM {type_._table_name}"
+                                                                     f" WHERE {criteria} = {_stringfy(value)}")
                         object_ids.extend([match[0] for match in matches])
                         break  # And exit loop.
-                return [cls.fetch(object_id) for object_id in object_ids]  # Return all objects that fit this category.
+                return [cls.fetch(object_id) for object_id in object_ids if cls.has(object_id)]  # Return all objects that fit this category that intersect with our child class.
 
             def create(self) -> None:
                 """
                 Insert this object to the bound database. This method only works
                     on DataBound objects that have no superclasses in the database.
+                    Superclasses should be created separately.
                 """
                 fields = unique_.copy()
                 fields.remove(self._obj_id_row)  # This is generated automatically.
@@ -353,6 +354,18 @@ def bind_database(obj_id_row: str):
                 global_query_handler.execute_query(f"INSERT INTO {self._table_name}"
                                                    f" {rows_clause} VALUES {values_clause}")
                 setattr(self, self._obj_id_row, global_query_handler.last_inserted_row_id())  # Set the id correctly.
+
+            @classmethod
+            def create_unique(cls, values: list) -> "DatabaseBound":
+                """
+                Create a class given all the info including the ID row. Where ID row is the first member.
+                """
+                fields = unique_.copy()
+                rows_clause = '(' + ', '.join(fields) + ')'
+                values_clause = '(' + ', '.join(_stringfy(value) for value in values) + ')'
+                global_query_handler.execute_query(f"INSERT INTO {cls._table_name}"
+                                                   f" {rows_clause} VALUES {values_clause}")
+                return cls.fetch(values[0])
 
             def delete(self) -> None:
                 """

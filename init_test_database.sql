@@ -30,6 +30,11 @@ CREATE TABLE IF NOT EXISTS JURY (
     FOREIGN KEY(jury_id) REFERENCES User_(user_id)
 );
 
+CREATE TABLE IF NOT EXISTS DBR (
+    dbr_id INTEGER PRIMARY KEY,
+    FOREIGN KEY(dbr_id) REFERENCES User_(user_id)
+);
+
 CREATE TABLE IF NOT EXISTS Student (
     student_id INTEGER PRIMARY KEY,
     is_approved BOOLEAN,
@@ -124,9 +129,11 @@ CREATE TABLE IF NOT EXISTS Defending (
 
 CREATE TABLE IF NOT EXISTS Evaluation (
     evaluation_id INTEGER PRIMARY KEY,
+    dissertation_id INTEGER,
     jury_id INTEGER,
-    evaluation_status TEXT
-                                      CHECK ( evaluation_status IN ('Correction', 'Rejected', 'Approved') )
+    evaluation
+                                      CHECK ( evaluation IN ('Correction', 'Rejected', 'Approved') ),
+                                          FOREIGN KEY (dissertation_id) REFERENCES Dissertation(dissertation_id)
 );
 
 /**
@@ -208,9 +215,67 @@ INSERT INTO Recommended VALUES (2, 15, 9);
 /** THESIS TEST USERS */
 INSERT INTO USER_ VALUES (16, 'Ariadne', 'Oliver', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'oliver@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (16, 'Character Encoding');
+INSERT INTO Jury VALUES (16, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 INSERT INTO User_ VALUES (17, 'Jane', 'Grey', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'grey@std.iyte.edu.tr', 0);
 INSERT INTO Student VALUES (17, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
 INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 15, 'Artificial Intelligence', 1621129273);
 INSERT INTO Has VALUES (0, 0, 17); /** Add an example thesis.*/
 INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
 INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/
+INSERT INTO Instructor VALUES (5, 17, 16);
+
+/** DBR Test Users */
+INSERT INTO Department VALUES (1, 'History');
+INSERT INTO Department VALUES (2, 'Not Available');
+INSERT INTO User_ VALUES (18, 'Roddy', 'Welman', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'welman@pers.iyte.edu.tr', 0);
+INSERT INTO DBR VALUES (18);
+INSERT INTO User_ VALUES (19, 'Peter', 'Lord', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'lord@pers.iyte.edu.tr', 1);
+INSERT INTO DBR VALUES (19);
+INSERT INTO User_ VALUES (20, 'Eileen', 'O''Brien', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'obrien@metu.edu.tr', 2);
+INSERT INTO Jury VALUES (20, TRUE, 'Middle Eastern Technical University', '+90 5XX XXX XX XX', TRUE);
+
+INSERT INTO Dissertation VALUES (0, 1621129275, TRUE); /** Add a dissertation. */
+INSERT INTO Defending VALUES (0, 0, 17);
+INSERT INTO Dissertation VALUES (1, 1621129275, TRUE); /** Add a dissertation. */
+INSERT INTO Defending VALUES (1, 1, 15); /** Another one. */
+INSERT INTO Member VALUES (0, 0, 20);
+INSERT INTO Member VALUES (1, 1, 20);
+
+INSERT INTO User_ VALUES (21, 'Elinor Katharine', 'Carlisle', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'katharine@std.iyte.edu.tr', 1);
+INSERT INTO Student VALUES (21, TRUE, TRUE, 2, 'Medieval History', 'Danelaw', 'NA', 'NA', FALSE);
+INSERT INTO User_ VALUES (22, 'Mary', 'Gerrard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'gerrard@std.iyte.edu.tr', 1);
+INSERT INTO Student VALUES (22, TRUE, TRUE, 2, 'Roman History', 'Third Century Crisis', 'NA', 'NA', FALSE);
+
+INSERT INTO User_ VALUES (23, 'Jessie', 'Hopkins', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'hopkins@iyte.edu.tr', 1);
+INSERT INTO Advisor VALUES (23, 'Bronze Age Collapse');
+INSERT INTO JURY VALUES (23, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
+
+INSERT INTO User_ VALUES (24, 'Ted', 'Bigland', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'bigland@iyte.edu.tr', 1);
+INSERT INTO Advisor VALUES (24, 'Persian Empire');
+INSERT INTO JURY VALUES (24, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
+
+INSERT INTO User_ VALUES (25, 'Emma', 'Bishop', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'bishop@iyte.edu.tr', 1);
+INSERT INTO Advisor VALUES (25, 'Julio-Claudian Dynasty');
+INSERT INTO JURY VALUES (25, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
+
+
+INSERT INTO Instructor VALUES (3, 21, 23);
+INSERT INTO Instructor VALUES (4, 22, 23);
+INSERT INTO Dissertation VALUES (2, 1621129276, TRUE);
+INSERT INTO Member VALUES (2, 2, 23);
+INSERT INTO Defending VALUES (2, 2, 22);
+INSERT INTO Member VALUES (3, 2, 20);
+INSERT INTO Evaluation VALUES (0, 2, 23, 'Approved');
+
+/**
+  * So second student defends a thesis and both are instructors to Jessie Hopkins
+ */
+
+INSERT INTO Dissertation VALUES (3, 1621129276, FALSE);
+INSERT INTO Member VALUES (4, 3, 23);
+INSERT INTO Defending VALUES (3, 3, 21);
+INSERT INTO Member VALUES (5, 3, 20);
+
+INSERT INTO User_ VALUES (26, 'Bob', 'Nathan', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'nathan@std.iyte.edu.tr', 0);
+INSERT INTO Student VALUES (26, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
+INSERT INTO Instructor VALUES (6, 26, 16);

@@ -16,7 +16,23 @@ class StudentAlreadyHasAdvisorException(Exception):
 
 class InvalidUserClassException(Exception):
     """
-    Raised when the attempted class is not a user class.
+    Raises when the attempted class is not a user class.
+    """
+    pass
+
+
+class JuryMemberDoesNotExistException(Exception):
+    """
+    Raises when a jury member referred with their id does not
+        exist.
+    """
+    pass
+
+
+class InvalidStudentState(Exception):
+    """
+    Student is not in a valid state for this operation
+        to happen.
     """
     pass
 
@@ -100,7 +116,7 @@ class User_:
         :param user: A variable of type user.
         :return the downcasted object.
         """
-        possibilities: List[type] = [Advisor, Student]
+        possibilities: List[type] = [Advisor, Student, DBR, Jury]
         for possibility in possibilities:
             if possibility.has(self.user_id):  # If user belongs to this class, we can fetch it.
                 return possibility.fetch(self.user_id)
@@ -142,6 +158,24 @@ class Advisor(User_):
         instructors = Instructor.fetch_where("advisor_id", self.advisor_id)  # Get Instructor entities.
         return [instructor.student_id for instructor in instructors]  # Get the student IDs from them.
 
+    @property
+    def jury_credentials(self) -> Optional["Jury"]:
+        """
+        Return Jury credentials of the Advisor if they exist,
+            ie: If an advisor is also a Jury member. Otherwise
+            return None.
+        """
+        if not Jury.has(self.advisor_id):
+            return None
+        return Jury.fetch(self.advisor_id)
+
+    def can_evaluate(self, student: "Student") -> bool:
+        """
+        Check if Jury is member in any of this student's
+            dissertations.
+        """
+        return self.advisor_id in student.dissertation_info['jury_ids']
+
 
 @bind_database(obj_id_row='jury_id')
 @dataclass
@@ -155,6 +189,30 @@ class Jury(User_):
     institution: str
     phone_number: str
     is_appointed: bool
+
+    @property
+    def students(self) -> List[int]:
+        if not Member.has_where('jury_id', self.jury_id):
+            return []
+        is_member_in: List[Member] = Member.fetch_where('jury_id', self.jury_id)
+        defending_relationships = [Defending.fetch_where('dissertation_id', member.dissertation_id)[0]
+                                   for member in is_member_in]
+        return [defending_relationship.student_id for defending_relationship in defending_relationships]
+
+    @classmethod
+    def add_new_jury(cls, user_args, jury_args):
+        user = User_(*user_args)
+        user.create()
+        jury_args[0] = user.user_id
+        new_jury = Jury.create_unique(jury_args)
+        return new_jury
+
+    def can_evaluate(self, student: "Student") -> bool:
+        """
+        Check if Jury is member in any of this student's
+            dissertations.
+        """
+        return self.jury_id in student.dissertation_info['jury_ids']
 
 
 @bind_database(obj_id_row='student_id')
@@ -217,6 +275,45 @@ class Student(User_):
         else:
             return -1
 
+    @property
+    def dissertation_info(self) -> Optional[dict]:
+        """
+        Return Student's Dissertation information and
+            the jury members in it.
+
+        :return Information amount the dissertation and
+            the jury member.
+        """
+        if not Defending.has_where('student_id', self.student_id):
+            return None
+        defending: Defending = Defending.fetch_where('student_id', self.student_id)[0]
+        dissertation: Dissertation = Dissertation.fetch(defending.dissertation_id)
+        dissertation_info = dissertation.get_info(self.student_id)
+        return dissertation_info
+
+    @property
+    def dissertation(self) -> "Dissertation":
+        return Dissertation.fetch(Defending.fetch_where('student_id', self.student_id)[0].dissertation_id)
+
+    def create_dissertation_for(self, jury_members: List[int], dissertation_date: int) -> Optional["Dissertation"]:
+        """
+        Create a new dissertation for this student.
+        :param jury_members: IDs of the jury members that shall defend this dissertation.
+        :param dissertation_date: Date of the dissertation.
+        :return the generated dissertation object or None if one jury member is not found.
+        """
+        if not all(Jury.has(jury_id) for jury_id in jury_members):
+            return None
+        new_dissertation = Dissertation(-1, dissertation_date, False)
+        new_dissertation.create()
+        for jury_id in jury_members:
+            new_member = Member(-1, new_dissertation.dissertation_id, jury_id)
+            new_member.create()
+        defending = Defending(-1, new_dissertation.dissertation_id, self.student_id)
+        defending.create()
+        return new_dissertation
+
+
 @bind_database(obj_id_row='thesis_id')
 @dataclass
 class Thesis:
@@ -241,7 +338,35 @@ class Dissertation:
     """
     dissertation_id: int
     jury_date: int
-    is_approved: int # TSS date and jury configuration must be approved first.
+    is_approved: int  # TSS date and jury configuration must be approved first.
+
+    def get_info(self, student_id) -> Optional[dict]:
+        """
+        Get info about dissertation.
+        """
+        if not Member.has_where('dissertation_id', self.dissertation_id):
+            return None
+        member_relationships: List[Member] = Member.fetch_where('dissertation_id', self.dissertation_id)
+        jury_members: List[Jury] = [Jury.fetch(member.jury_id) for member in member_relationships]
+        jury_ids = [jury.jury_id for jury in jury_members]
+        dissertation_info = {"jury_date": self.jury_date, "jury_ids": jury_ids, "student_id": student_id}
+        if not self.is_approved:
+            dissertation_info['status'] = 'Pending'
+        else:
+            dissertation_info['status'] = Evaluation.get_consensus(self.dissertation_id, len(jury_ids))
+        return dissertation_info
+
+    def delete_dissertation(self):
+        """
+        Delete a dissertation alongside with
+            its associated objects.
+        """
+        defending = Defending.fetch_where('dissertation_id', self.dissertation_id)
+        defending[0].delete()
+        members = Member.fetch_where('dissertation_id', self.dissertation_id)
+        for member in members:
+            member.delete()
+        self.delete()
 
 
 @bind_database(obj_id_row='member_id')
@@ -287,8 +412,46 @@ class Evaluation:
         a specific dissertation.
     """
     evaluation_id: int
+    dissertation_id: int
     jury_id: int
     evaluation: str
+
+    @classmethod
+    def get_consensus(cls, dissertation_id: int, member_count: int) -> str:
+        """
+        Get the consensus about the Thesis state of the student.
+
+        :param dissertation_id: ID of the dissertation.
+        :param member_count: Number of jury members in dissertations.
+        :return The consensus of the dissertation.
+        """
+        evaluations: List[Evaluation] = Evaluation.fetch_where('dissertation_id', dissertation_id)
+        decisions = {"Correction": 0, "Rejected": 0, "Approved": 0}
+        for evaluation in evaluations:
+            decisions[evaluation.evaluation] += 1
+        if sum(decisions.values()) == member_count:
+            items = decisions.items()
+            items = list(items)
+            items.sort(key=lambda item: item[1], reverse=True)
+            return items[0][0]
+        else:
+            return "Undecided"
+
+
+@bind_database(obj_id_row='dbr_id')
+@dataclass
+class DBR(User_):
+    """
+    Departmental Board Representative.
+    """
+    dbr_id: int
+
+    @property
+    def students(self) -> List[int]:
+        if not Student.has_where('department_id', self.department_id):
+            return []
+        students = Student.fetch_where('department_id', self.department_id)
+        return [student.user_id for student in students]
 
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
@@ -299,7 +462,7 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
     :param user_id: ID of the user.
     :return The user information as a dictionary or None if no such user exists.
     """
-    if class_type not in [Student, Advisor]:
+    if class_type not in [Student, Advisor, DBR, Jury]:
         raise InvalidUserClassException
     if not class_type.has(user_id):
         return None

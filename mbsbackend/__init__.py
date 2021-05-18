@@ -17,7 +17,7 @@ from dataclasses import asdict
 from werkzeug.utils import secure_filename
 
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department, Thesis, Has
+    convert_department, Thesis, Has, DBR, Jury, Dissertation, Defending, Evaluation
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
@@ -122,7 +122,18 @@ def create_app() -> Flask:
         elif isinstance(user, Advisor):
             user_info['role'] = 'advisor'
             user_info['advisor'] = asdict(user)
+            if user.jury_credentials:
+                user_info['role'] = 'jury_advisor'
+                user_info['jury'] = asdict(user.jury_credentials)
             user_info['username'] = user_info['advisor']['name_']  # Remove in Production. Backward Compatibility.
+        elif isinstance(user, DBR):
+            user_info['role'] = 'DBR'
+            user_info['DBR'] = asdict(user)
+            user_info['username'] = user_info['DBR']['name_']
+        elif isinstance(user, Jury):
+            user_info['role'] = 'jury'
+            user_info['jury'] = asdict(user)
+            user_info['username'] = user_info['jury']['name_']
         else:
             return {"message": "Invalid user type"}, 400
         for key in user_info:
@@ -155,15 +166,26 @@ def create_app() -> Flask:
         """
         user = current_user.downcast()
         id_ = int(student_id)
-        if not isinstance(user, Student) and user.student_id != student_id:
+        if not Student.has(id_):
+            return {"msg": "No such student."}, 404
+        student = Student.fetch(id_)
+        if isinstance(user, Student) and user.student_id == id_:
+            payload = request.json
+            acceptable_fields = [field for field in payload if
+                                 field not in forbidden_fields["Student"] and field in Student.__dataclass_fields__]
+            for field in acceptable_fields:
+                setattr(user, field, payload[field])  # Update the field of the user.
+            user.update()  # Update it in the database.
+        elif isinstance(user, Advisor) and user.advisor_id == student.advisor.advisor_id:
+            payload = request.json
+            acceptable_fields = [field for field in payload if
+                                 field not in forbidden_fields["StudentAdvisor"] and field in Student.__dataclass_fields__]
+            for field in acceptable_fields:
+                setattr(student, field, payload[field])  # Update the field of the user.
+            student.update()  # Update it in the database.
+        else:
             return {"msg": "Unauthorised"}, 401
-        payload = request.json
-        acceptable_fields = [field for field in payload if
-                             field not in forbidden_fields["Student"] and field in Student.__dataclass_fields__]
-        for field in acceptable_fields:
-            setattr(user, field, payload[field])  # Update the field of the user.
-        user.update()  # Update it in the database.
-        return get_user(Student, user.user_id), 200
+        return get_user(Student, student.user_id), 200
 
     @app.route('/advisors/<advisor_id>', methods=["GET"])
     @returns_json
@@ -292,11 +314,18 @@ def create_app() -> Flask:
         """
         Get a list of Students managed by this advisor.
         """
-        advisor = current_user.downcast()
-        if not isinstance(advisor, Advisor):  # If the current user is not an advisor.
+        user = current_user.downcast()
+        return_dict = {"students": [], "defenders": []}
+        if not any(isinstance(user, accepted) for accepted in (Advisor, DBR, Jury)):  # If the current user is not an advisor.
             return {"msg": "Only the advisors can see their proposals."}, 403
-        students = advisor.students
-        return students, 200
+        if any(isinstance(user, one_of) for one_of in (Advisor, DBR)):
+            return_dict['students'] = user.students
+        elif isinstance(user, Jury):
+            return_dict['defenders'] = user.students  # All of these classes have a students property.
+        if isinstance(user, Advisor) and user.jury_credentials:
+            jury_version = user.jury_credentials
+            return_dict['defenders'] = jury_version.students
+        return return_dict, 200
 
     @app.route('/theses', methods=['GET'])
     @returns_json
@@ -387,5 +416,188 @@ def create_app() -> Flask:
         metadata = asdict(new_thesis_metadata)
         del metadata['file_path']
         return metadata, 201
+
+    @app.route('/jury', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_jury_all() -> Tuple[dict, int]:
+        """
+        An advisor can get all the jury members in
+            their own department using this.
+        """
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):
+            return {"msg": "Only advisor can view the jury member list."}, 403
+        jury_members = Jury.fetch_where('department_id', advisor.department_id)
+        return {"jury_members": [jury.jury_id for jury in jury_members]}, 200
+
+    @app.route('/jury', methods=['POST'])
+    @full_json(requiried_keys=('name_', 'surname', 'email', 'institution', 'phone_number'))
+    @jwt_required()
+    def post_jury() -> Tuple[dict, int]:
+        """
+        An advisor can add a new, external Jury member to the system.
+        """
+        advisor = current_user.downcast()
+        req: dict = request.json
+        if not isinstance(advisor, Advisor):
+            return {"msg": "Only advisor add a new jury member."}, 403
+        new_jury_member = Jury.add_new_jury(
+            [-1,
+            req['name_'],
+            req['surname'],
+            "dflkjgdfjkgkdfgfd",
+            req['email'],
+            advisor.department_id],
+            [-1,
+            False,
+            req['institution'],
+            req['phone_number'],
+            True]
+        )
+        return get_user(Jury, new_jury_member.jury_id), 201
+
+    @app.route('/jury/<jury_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_jury(jury_id) -> Tuple[dict, int]:
+        """
+        Get a jury information given its id.
+
+        :param jury_id: ID of the Jury to get the information.
+        :return The jury member's credentials.
+        """
+        id_ = int(jury_id)
+        if not Jury.has(id_):
+            return {"msg": "Jury member not found."}, 404
+        return get_user(Jury, id_), 200
+
+    @app.route('/dissertation/<student_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_dissertation_info(student_id) -> Tuple[dict, int]:
+        """
+        Get a dissertation information with addition of Jury members.
+
+        :param student_id: Student ID of the Student whose dissertation
+         we are reaching.
+        """
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student now found."}, 404
+        dissertation_info = Student.fetch(id_).dissertation_info
+        if dissertation_info:
+            return dissertation_info, 200
+        else:
+            return {"msg": "Student does not have a dissertation."}, 404
+
+    @app.route('/dissertation/<student_id>', methods=['POST'])
+    @full_json(required_keys=('jury_members', 'dissertation_date'))
+    @jwt_required()
+    def create_new_dissertation(student_id) -> Tuple[dict, int]:
+        """
+        Create a new dissertation.
+
+        :param student_id: Student ID of the Student whose dissertation
+         we creating.
+        """
+        id_ = int(student_id)
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):
+            return {'msg': 'Requries advisor user to do this.'}, 403
+        elif not Student.has(id_):
+            return {'msg': 'Student not found.'}, 404
+        student = Student.fetch(id_)
+        if student.advisor.advisor_id != advisor.advisor_id:
+            return {"msg": "Not the advisor of this student."}, 403
+        elif student.dissertation_info:
+            return {"msg": "Student already has one [possibly proposed] dissertation."}, 409
+        dissertation = student.create_dissertation_for(request.json['jury_members'], request.json['dissertation_date'])
+        if dissertation is None:
+            return {"msg": "Jury member not found"}, 404
+        return {"msg": "Dissertation is created."}, 201
+
+    @app.route('/dissertation/<student_id>', methods=['DELETE'])
+    @jwt_required()
+    def reject_dissertation(student_id) -> Tuple[dict, int]:
+        """
+        Reject a dissertation proposal.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if not isinstance(user, DBR) or student.department_id != user.department_id:
+            return {"msg": "You are unauthorised for this action."}, 403
+        if student.dissertation_info:
+            dissertation = student.dissertation
+            if dissertation.is_approved:
+                return {"msg": "Cannot reject an approved dissertation."}, 409
+            dissertation.delete_dissertation()  # Delete the object.
+        return {"msg": "Dissertation object no longer exists."}, 204
+
+    @app.route('/dissertation/<student_id>', methods=['PUT'])
+    @jwt_required()
+    def accept_dissertation_proposal(student_id) -> Tuple[dict, int]:
+        """
+        Accept a dissertation proposal.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if not isinstance(user, DBR) or student.department_id != user.department_id:
+            return {"msg": "You are unauthorised for this action."}, 403
+        if student.dissertation_info:
+            dissertation = student.dissertation
+            dissertation.is_approved = True
+            dissertation.update()  # Delete the object.
+            return student.dissertation_info, 200
+        else:
+            return {"msg": "Student does not have dissertation"}, 409
+
+    @app.route('/evaluation/<student_id>', methods=['POST'])
+    @full_json(required_keys=('evaluation',))
+    @jwt_required()
+    def post_evaluation(student_id) -> Tuple[dict, int]:
+        """
+        Evaluate a thesis as a jury member.
+        """
+        if request.json['evaluation'] not in ('Correction', 'Rejected', 'Approved'):
+            return {"msg": "Invalid evaluation."}, 409
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if (not isinstance(user, Advisor) and not isinstance(user, Jury)) or not user.can_evaluate(student):
+            return {"msg": "Unauthorized"}, 403
+        dissertation = student.dissertation
+        evaluation = Evaluation(-1, dissertation.dissertation_id, user.user_id, request.json['evaluation'])
+        evaluation.create()
+        return {"msg": "Created."}, 201
+
+    @app.route('/evaluation/<student_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_evaluation(student_id) -> Tuple[dict, int]:
+        """
+        Get your evaluation.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if (not isinstance(user, Advisor) and not isinstance(user, Jury)) or not user.can_evaluate(student):
+            return {"msg": "Unauthorized"}, 403
+        dissertation = student.dissertation
+        evaluation = Evaluation.fetch_where('dissertation_id', dissertation.dissertation_id)
+        evaluation = (*filter(lambda e: e.jury_id == user.user_id, evaluation),)
+        if evaluation:
+            return {"evaluation": evaluation[0].evaluation}, 200
+        return {"msg": "Not found."}, 404
 
     return app

@@ -4,7 +4,8 @@ import flask_unittest
 import flask.globals
 from flask import Response, request
 from flask.testing import FlaskClient
-from tests.expected_responses import expected_student, expected_student_advisor, expected_advisor
+from tests.expected_responses import expected_student, expected_student_advisor, expected_advisor, expected_dbr, \
+    expected_jury
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
@@ -92,3 +93,36 @@ class TestLoginAdvisor(flask_unittest.ClientTestCase):
         resp = client.get('/users')
         self.assertStatus(resp, 200)
         self.assertDictEqual(expected_advisor, resp.json)
+
+
+class TestLoginDBR(flask_unittest.ClientTestCase):
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "welman@pers.iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_dbr_information(self, client: FlaskClient) -> None:
+        resp = client.get('/users')
+        self.assertStatus(resp, 200)
+        self.assertDictEqual(expected_dbr, resp.json)
+
+
+class TestLoginJury(flask_unittest.ClientTestCase):
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "obrien@metu.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_dbr_information(self, client: FlaskClient) -> None:
+        resp = client.get('/users')
+        self.assertStatus(resp, 200)
+        self.assertDictEqual(expected_jury, resp.json)
+
