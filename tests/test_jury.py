@@ -51,7 +51,7 @@ class TestGetAdvisorJury(flask_unittest.ClientTestCase):
 
     def test_get_student_information(self, client: FlaskClient) -> None:
         """
-        Get information about a jury member.
+        Get students
         """
         resp = client.get('/students')
         self.assertStatus(resp, 200)

@@ -153,6 +153,7 @@ class Advisor(User_):
             return None
         return Jury.fetch(self.advisor_id)
 
+
 @bind_database(obj_id_row='jury_id')
 @dataclass
 class Jury(User_):
@@ -236,6 +237,22 @@ class Student(User_):
         else:
             return -1
 
+    @property
+    def dissertation(self) -> Optional[dict]:
+        """
+        Return Student's Dissertation information and
+            the jury members in it.
+
+        :return Information amount the dissertation and
+            the jury member.
+        """
+        if not Defending.has_where('student_id', self.student_id):
+            return None
+        defending: Defending = Defending.fetch_where('student_id', self.student_id)[0]
+        dissertation: Dissertation = Dissertation.fetch(defending.dissertation_id)
+        dissertation_info = dissertation.get_info(self.student_id)
+        return dissertation_info
+
 
 @bind_database(obj_id_row='thesis_id')
 @dataclass
@@ -261,7 +278,23 @@ class Dissertation:
     """
     dissertation_id: int
     jury_date: int
-    is_approved: int # TSS date and jury configuration must be approved first.
+    is_approved: int  # TSS date and jury configuration must be approved first.
+
+    def get_info(self, student_id) -> Optional[dict]:
+        """
+        Get info about dissertation.
+        """
+        if not Member.has_where('dissertation_id', self.dissertation_id):
+            return None
+        member_relationships: List[Member] = Member.fetch_where('dissertation_id', self.dissertation_id)
+        jury_members: List[Jury] = [Jury.fetch(member.jury_id) for member in member_relationships]
+        jury_ids = [jury.jury_id for jury in jury_members]
+        dissertation_info = {"jury_date": self.jury_date, "jury_ids": jury_ids, "student_id": student_id}
+        if not self.is_approved:
+            dissertation_info['status'] = 'Pending'
+        else:
+            dissertation_info['status'] = Evaluation.get_consensus(self.dissertation_id, len(jury_ids))
+        return dissertation_info
 
 
 @bind_database(obj_id_row='member_id')
@@ -310,6 +343,26 @@ class Evaluation:
     jury_id: int
     evaluation: str
 
+    @classmethod
+    def get_consensus(cls, dissertation_id: int, member_count: int) -> str:
+        """
+        Get the consensus about the Thesis state of the student.
+
+        :param dissertation_id: ID of the dissertation.
+        :param member_count: Number of jury members in dissertations.
+        :return The consensus of the dissertation.
+        """
+        evaluations: List[Evaluation] = Evaluation.fetch_where('dissertation_id', dissertation_id)
+        decisions = {"Correction": 0, "Rejected": 0, "Approved": 0}
+        for evaluation in evaluations:
+            decisions[evaluation.evaluation] += 1
+        if sum(decisions.values()) == member_count:
+            items = decisions.items()
+            items = list(items)
+            items.sort(key=lambda item: item[1], reverse=True)
+            return items[0][0]
+        else:
+            return "Undecided"
 
 @bind_database(obj_id_row='dbr_id')
 @dataclass

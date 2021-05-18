@@ -209,3 +209,13 @@ expected_student_info_from_jury_advisor = {
         22
     ]
 }
+
+expected_dissertation = {
+    "student_id": 22,
+    "jury_ids": [
+        23,
+        20
+    ],
+    "jury_date": 1621129276,
+    "status": 'Undecided'
+}

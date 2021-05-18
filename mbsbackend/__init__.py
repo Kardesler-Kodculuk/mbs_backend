@@ -432,4 +432,23 @@ def create_app() -> Flask:
             return {"msg": "Jury member not found."}, 404
         return get_user(Jury, id_), 200
 
+    @app.route('/dissertation/<student_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_dissertation_info(student_id) -> Tuple[dict, int]:
+        """
+        Get a dissertation information with addition of Jury members.
+
+        :param student_id: Student ID of the Student whose dissertation
+         we are reaching.
+        """
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student now found."}, 404
+        dissertation_info = Student.fetch(id_).dissertation
+        if dissertation_info:
+            return dissertation_info, 200
+        else:
+            return {"msg": "Student does not have a dissertation."}, 404
+
     return app
