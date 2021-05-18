@@ -169,6 +169,13 @@ class Advisor(User_):
             return None
         return Jury.fetch(self.advisor_id)
 
+    def can_evaluate(self, student: "Student") -> bool:
+        """
+        Check if Jury is member in any of this student's
+            dissertations.
+        """
+        return self.advisor_id in student.dissertation['jury_ids']
+
 
 @bind_database(obj_id_row='jury_id')
 @dataclass
@@ -199,6 +206,14 @@ class Jury(User_):
         jury_args[0] = user.user_id
         new_jury = Jury.create_unique(jury_args)
         return new_jury
+
+    def can_evaluate(self, student: "Student") -> bool:
+        """
+        Check if Jury is member in any of this student's
+            dissertations.
+        """
+        return self.jury_id in student.dissertation['jury_ids']
+
 
 @bind_database(obj_id_row='student_id')
 @dataclass
@@ -275,6 +290,10 @@ class Student(User_):
         dissertation: Dissertation = Dissertation.fetch(defending.dissertation_id)
         dissertation_info = dissertation.get_info(self.student_id)
         return dissertation_info
+
+    @property
+    def dissertation_object(self) -> "Dissertation":
+        return Dissertation.fetch(Defending.fetch_where('student_id', self.student_id)[0].dissertation_id)
 
     def create_dissertation_for(self, jury_members: List[int], dissertation_date: int) -> Optional["Dissertation"]:
         """
@@ -393,6 +412,7 @@ class Evaluation:
         a specific dissertation.
     """
     evaluation_id: int
+    dissertation_id: int
     jury_id: int
     evaluation: str
 

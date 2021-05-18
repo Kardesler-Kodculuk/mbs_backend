@@ -129,9 +129,11 @@ CREATE TABLE IF NOT EXISTS Defending (
 
 CREATE TABLE IF NOT EXISTS Evaluation (
     evaluation_id INTEGER PRIMARY KEY,
+    dissertation_id INTEGER,
     jury_id INTEGER,
-    evaluation_status TEXT
-                                      CHECK ( evaluation_status IN ('Correction', 'Rejected', 'Approved') )
+    evaluation
+                                      CHECK ( evaluation IN ('Correction', 'Rejected', 'Approved') ),
+                                          FOREIGN KEY (dissertation_id) REFERENCES Dissertation(dissertation_id)
 );
 
 /**
@@ -263,6 +265,7 @@ INSERT INTO Dissertation VALUES (2, 1621129276, TRUE);
 INSERT INTO Member VALUES (2, 2, 23);
 INSERT INTO Defending VALUES (2, 2, 22);
 INSERT INTO Member VALUES (3, 2, 20);
+INSERT INTO Evaluation VALUES (0, 2, 23, 'Approved');
 
 /**
   * So second student defends a thesis and both are instructors to Jessie Hopkins

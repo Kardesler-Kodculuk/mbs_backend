@@ -8,7 +8,7 @@ from flask.testing import FlaskClient
 from tests.expected_responses import expected_dissertation, dissertation_add_json, dissertation_expected_json
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
-from mbsbackend import create_app, Dissertation
+from mbsbackend import create_app
 
 
 class TestGetDissertation(flask_unittest.ClientTestCase):

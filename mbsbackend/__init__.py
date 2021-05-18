@@ -17,7 +17,7 @@ from dataclasses import asdict
 from werkzeug.utils import secure_filename
 
 from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department, Thesis, Has, DBR, Jury, Dissertation, Defending
+    convert_department, Thesis, Has, DBR, Jury, Dissertation, Defending, Evaluation
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number
@@ -557,4 +557,47 @@ def create_app() -> Flask:
             return student.dissertation, 200
         else:
             return {"msg": "Student does not have dissertation"}, 409
+
+    @app.route('/evaluation/<student_id>', methods=['POST'])
+    @full_json(required_keys=('evaluation',))
+    @jwt_required()
+    def post_evaluation(student_id) -> Tuple[dict, int]:
+        """
+        Evaluate a thesis as a jury member.
+        """
+        if request.json['evaluation'] not in ('Correction', 'Rejected', 'Approved'):
+            return {"msg": "Invalid evaluation."}, 409
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if (not isinstance(user, Advisor) and not isinstance(user, Jury)) or not user.can_evaluate(student):
+            return {"msg": "Unauthorized"}, 403
+        dissertation = student.dissertation_object
+        evaluation = Evaluation(-1, dissertation.dissertation_id, user.user_id, request.json['evaluation'])
+        evaluation.create()
+        return {"msg": "Created."}, 201
+
+    @app.route('/evaluation/<student_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_evaluation(student_id) -> Tuple[dict, int]:
+        """
+        Get your evaluation.
+        """
+        user = current_user.downcast()
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if (not isinstance(user, Advisor) and not isinstance(user, Jury)) or not user.can_evaluate(student):
+            return {"msg": "Unauthorized"}, 403
+        dissertation = student.dissertation_object
+        evaluation = Evaluation.fetch_where('dissertation_id', dissertation.dissertation_id)
+        evaluation = (*filter(lambda e: e.jury_id == user.user_id, evaluation),)
+        if evaluation:
+            return {"evaluation": evaluation[0].evaluation}, 200
+        return {"msg": "Not found."}, 404
+
     return app
