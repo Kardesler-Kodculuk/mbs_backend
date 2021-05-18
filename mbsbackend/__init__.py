@@ -485,7 +485,7 @@ def create_app() -> Flask:
         id_ = int(student_id)
         if not Student.has(id_):
             return {"msg": "Student now found."}, 404
-        dissertation_info = Student.fetch(id_).dissertation
+        dissertation_info = Student.fetch(id_).dissertation_info
         if dissertation_info:
             return dissertation_info, 200
         else:
@@ -510,7 +510,7 @@ def create_app() -> Flask:
         student = Student.fetch(id_)
         if student.advisor.advisor_id != advisor.advisor_id:
             return {"msg": "Not the advisor of this student."}, 403
-        elif student.dissertation:
+        elif student.dissertation_info:
             return {"msg": "Student already has one [possibly proposed] dissertation."}, 409
         dissertation = student.create_dissertation_for(request.json['jury_members'], request.json['dissertation_date'])
         if dissertation is None:
@@ -530,8 +530,8 @@ def create_app() -> Flask:
         student: Student = Student.fetch(id_)
         if not isinstance(user, DBR) or student.department_id != user.department_id:
             return {"msg": "You are unauthorised for this action."}, 403
-        if student.dissertation:
-            dissertation = Dissertation.fetch(Defending.fetch_where('student_id', student.student_id)[0].dissertation_id)
+        if student.dissertation_info:
+            dissertation = student.dissertation
             if dissertation.is_approved:
                 return {"msg": "Cannot reject an approved dissertation."}, 409
             dissertation.delete_dissertation()  # Delete the object.
@@ -550,11 +550,11 @@ def create_app() -> Flask:
         student: Student = Student.fetch(id_)
         if not isinstance(user, DBR) or student.department_id != user.department_id:
             return {"msg": "You are unauthorised for this action."}, 403
-        if student.dissertation:
-            dissertation = Dissertation.fetch(Defending.fetch_where('student_id', student.student_id)[0].dissertation_id)
+        if student.dissertation_info:
+            dissertation = student.dissertation
             dissertation.is_approved = True
             dissertation.update()  # Delete the object.
-            return student.dissertation, 200
+            return student.dissertation_info, 200
         else:
             return {"msg": "Student does not have dissertation"}, 409
 
@@ -574,7 +574,7 @@ def create_app() -> Flask:
         student: Student = Student.fetch(id_)
         if (not isinstance(user, Advisor) and not isinstance(user, Jury)) or not user.can_evaluate(student):
             return {"msg": "Unauthorized"}, 403
-        dissertation = student.dissertation_object
+        dissertation = student.dissertation
         evaluation = Evaluation(-1, dissertation.dissertation_id, user.user_id, request.json['evaluation'])
         evaluation.create()
         return {"msg": "Created."}, 201
@@ -593,7 +593,7 @@ def create_app() -> Flask:
         student: Student = Student.fetch(id_)
         if (not isinstance(user, Advisor) and not isinstance(user, Jury)) or not user.can_evaluate(student):
             return {"msg": "Unauthorized"}, 403
-        dissertation = student.dissertation_object
+        dissertation = student.dissertation
         evaluation = Evaluation.fetch_where('dissertation_id', dissertation.dissertation_id)
         evaluation = (*filter(lambda e: e.jury_id == user.user_id, evaluation),)
         if evaluation:

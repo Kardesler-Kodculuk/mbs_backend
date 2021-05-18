@@ -174,7 +174,7 @@ class Advisor(User_):
         Check if Jury is member in any of this student's
             dissertations.
         """
-        return self.advisor_id in student.dissertation['jury_ids']
+        return self.advisor_id in student.dissertation_info['jury_ids']
 
 
 @bind_database(obj_id_row='jury_id')
@@ -212,7 +212,7 @@ class Jury(User_):
         Check if Jury is member in any of this student's
             dissertations.
         """
-        return self.jury_id in student.dissertation['jury_ids']
+        return self.jury_id in student.dissertation_info['jury_ids']
 
 
 @bind_database(obj_id_row='student_id')
@@ -276,7 +276,7 @@ class Student(User_):
             return -1
 
     @property
-    def dissertation(self) -> Optional[dict]:
+    def dissertation_info(self) -> Optional[dict]:
         """
         Return Student's Dissertation information and
             the jury members in it.
@@ -292,7 +292,7 @@ class Student(User_):
         return dissertation_info
 
     @property
-    def dissertation_object(self) -> "Dissertation":
+    def dissertation(self) -> "Dissertation":
         return Dissertation.fetch(Defending.fetch_where('student_id', self.student_id)[0].dissertation_id)
 
     def create_dissertation_for(self, jury_members: List[int], dissertation_date: int) -> Optional["Dissertation"]:
