@@ -33,5 +33,4 @@ class TestGetDissertation(flask_unittest.ClientTestCase):
         Attempt to get information about a dissertation that does not exist.
         """
         reply = client.get('/dissertation/10')  # Ask for dissertation for user 22.
-        print(reply.json)
         self.assertStatus(reply, 404)

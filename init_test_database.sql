@@ -245,6 +245,15 @@ INSERT INTO User_ VALUES (23, 'Jessie', 'Hopkins', '$pbkdf2-sha256$29000$xNh7j3H
 INSERT INTO Advisor VALUES (23, 'Bronze Age Collapse');
 INSERT INTO JURY VALUES (23, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 
+INSERT INTO User_ VALUES (24, 'Ted', 'Bigland', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'bigland@iyte.edu.tr', 1);
+INSERT INTO Advisor VALUES (24, 'Persian Empire');
+INSERT INTO JURY VALUES (24, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
+
+INSERT INTO User_ VALUES (25, 'Emma', 'Bishop', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'bishop@iyte.edu.tr', 1);
+INSERT INTO Advisor VALUES (25, 'Julio-Claudian Dynasty');
+INSERT INTO JURY VALUES (25, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
+
+
 INSERT INTO Instructor VALUES (3, 21, 23);
 INSERT INTO Instructor VALUES (4, 22, 23);
 INSERT INTO Dissertation VALUES (2, 1621129276, TRUE);

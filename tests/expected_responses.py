@@ -219,3 +219,13 @@ expected_dissertation = {
     "jury_date": 1621129276,
     "status": 'Undecided'
 }
+
+expected_jury_members = {"jury_members": [23, 24, 25]}
+
+jury_add_command = {
+    "name_": "Charlotte Froese",
+    "surname": "Fischer",
+    "email": "grey@iyte.edu.tr",
+    "institution": "Miskatonic University",
+    "phone_number": "+90 5XX XXX XX XX"
+}

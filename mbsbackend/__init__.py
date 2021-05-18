@@ -417,6 +417,46 @@ def create_app() -> Flask:
         del metadata['file_path']
         return metadata, 201
 
+    @app.route('/jury', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_jury_all() -> Tuple[dict, int]:
+        """
+        An advisor can get all the jury members in
+            their own department using this.
+        """
+        advisor = current_user.downcast()
+        if not isinstance(advisor, Advisor):
+            return {"msg": "Only advisor can view the jury member list."}, 403
+        jury_members = Jury.fetch_where('department_id', advisor.department_id)
+        return {"jury_members": [jury.jury_id for jury in jury_members]}, 200
+
+    @app.route('/jury', methods=['POST'])
+    @full_json(requiried_keys=('name_', 'surname', 'email', 'institution', 'phone_number'))
+    @jwt_required()
+    def post_jury() -> Tuple[dict, int]:
+        """
+        An advisor can add a new, external Jury member to the system.
+        """
+        advisor = current_user.downcast()
+        req: dict = request.json
+        if not isinstance(advisor, Advisor):
+            return {"msg": "Only advisor add a new jury member."}, 403
+        new_jury_member = Jury.add_new_jury(
+            [-1,
+            req['name_'],
+            req['surname'],
+            "dflkjgdfjkgkdfgfd",
+            req['email'],
+            advisor.department_id],
+            [-1,
+            False,
+            req['institution'],
+            req['phone_number'],
+            True]
+        )
+        return get_user(Jury, new_jury_member.jury_id), 201
+
     @app.route('/jury/<jury_id>', methods=['GET'])
     @returns_json
     @jwt_required()

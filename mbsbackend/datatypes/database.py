@@ -344,6 +344,7 @@ def bind_database(obj_id_row: str):
                 """
                 Insert this object to the bound database. This method only works
                     on DataBound objects that have no superclasses in the database.
+                    Superclasses should be created separately.
                 """
                 fields = unique_.copy()
                 fields.remove(self._obj_id_row)  # This is generated automatically.

@@ -176,6 +176,12 @@ class Jury(User_):
                                    for member in is_member_in]
         return [defending_relationship.student_id for defending_relationship in defending_relationships]
 
+    @classmethod
+    def add_new_jury(cls, user_args, jury_args):
+        User_(*user_args).create()
+        new_jury = Jury(*user_args, *jury_args)
+        new_jury.create()
+        return new_jury
 
 @bind_database(obj_id_row='student_id')
 @dataclass
@@ -363,6 +369,7 @@ class Evaluation:
             return items[0][0]
         else:
             return "Undecided"
+
 
 @bind_database(obj_id_row='dbr_id')
 @dataclass
