@@ -2,13 +2,11 @@
 import sqlite3
 from os import environ
 import flask_unittest
-import flask.globals
-from flask import Response, request
 from flask.testing import FlaskClient
-from tests.expected_responses import expected_student_get_0, expected_advisor_get_1, expected_proposals, \
-    expected_recommendations
+from tests.expected_responses import expected_proposals
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
-from mbsbackend import create_app, Student, Advisor
+from mbsbackend import create_app
+from mbsbackend.datatypes.classes.user_classes import Student, Advisor
 
 
 class TestProposalsForAdvisor(flask_unittest.ClientTestCase):

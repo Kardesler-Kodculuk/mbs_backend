@@ -2,7 +2,7 @@ from os import environ
 
 import flask_unittest
 import flask.globals
-from flask import Response, request
+from flask import Response
 from flask.testing import FlaskClient
 from tests.expected_responses import expected_student, expected_student_advisor, expected_advisor, expected_dbr, \
     expected_jury

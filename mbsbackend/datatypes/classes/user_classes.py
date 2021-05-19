@@ -1,40 +1,9 @@
-from dataclasses import dataclass, asdict
-from enum import Enum
-from typing import List, Union, Optional
-from datetime import date
-from typing import List
-from .database import bind_database
-
-
-class StudentAlreadyHasAdvisorException(Exception):
-    """
-    Raised when attempted to access recommended advisors
-        of a student but the student already has an advisor.
-    """
-    pass
-
-
-class InvalidUserClassException(Exception):
-    """
-    Raises when the attempted class is not a user class.
-    """
-    pass
-
-
-class JuryMemberDoesNotExistException(Exception):
-    """
-    Raises when a jury member referred with their id does not
-        exist.
-    """
-    pass
-
-
-class InvalidStudentState(Exception):
-    """
-    Student is not in a valid state for this operation
-        to happen.
-    """
-    pass
+from mbsbackend.datatypes.database import bind_database
+from dataclasses import dataclass
+from typing import Optional, List, Union
+from .user_relationships import Proposal, Instructor, Recommended
+from .thesis_classes import Defending, Member, Has, Thesis, Evaluation
+from .class_exceptions import StudentAlreadyHasAdvisorException
 
 
 @bind_database(obj_id_row='department_id')
@@ -45,54 +14,6 @@ class Department:
     """
     department_id: int
     department_name: str
-
-
-@bind_database(obj_id_row='id_')
-@dataclass
-class Instructor:
-    """
-    Indicates instructor relationship
-        between a student and their
-        advisor.
-    """
-    id_: int
-    student_id: int
-    advisor_id: int
-
-
-@bind_database(obj_id_row='recommendation_id')
-@dataclass
-class Recommended:
-    """
-    Indicates that an advisor was
-        recommended to a student.
-    """
-    recommendation_id: int
-    student_id: int
-    advisor_id: int
-
-
-@bind_database(obj_id_row='proposal_id')
-@dataclass
-class Proposal:
-    """
-    Indicates a student that has proposed
-        to an advisor.
-    """
-    proposal_id: int
-    student_id: int
-    advisor_id: int
-
-
-class PageType(Enum):
-    """
-    This enum holds the main pages
-        this user is allowed to view.
-    """
-    STUDENT_MANAGEMENT = "STUDENT_MANAGEMENT"
-    PPF_MANAGEMENT = "PPF_MANAGEMENT"
-    THESIS_MANAGEMENT = "THESIS_MANAGEMENT"
-    ADVISOR_SELECTION = "ADVISOR_SELECTION"
 
 
 @bind_database(obj_id_row='user_id')
@@ -313,131 +234,6 @@ class Student(User_):
         defending.create()
         return new_dissertation
 
-
-@bind_database(obj_id_row='thesis_id')
-@dataclass
-class Thesis:
-    """
-    Class holding data on a Master's
-        Student's Thesis.
-    """
-    thesis_id: int
-    file_path: str
-    plagiarism_ratio: int
-    thesis_topic: str
-    submission_date: int
-
-
-@bind_database(obj_id_row='dissertation_id')
-@dataclass
-class Dissertation:
-    """
-    Represents the exam done to evaluate whether or not if
-        a thesis shall pass. Turkish for this term is Tez
-        Savunma Sınavı.
-    """
-    dissertation_id: int
-    jury_date: int
-    is_approved: int  # TSS date and jury configuration must be approved first.
-
-    def get_info(self, student_id) -> Optional[dict]:
-        """
-        Get info about dissertation.
-        """
-        if not Member.has_where('dissertation_id', self.dissertation_id):
-            return None
-        member_relationships: List[Member] = Member.fetch_where('dissertation_id', self.dissertation_id)
-        jury_members: List[Jury] = [Jury.fetch(member.jury_id) for member in member_relationships]
-        jury_ids = [jury.jury_id for jury in jury_members]
-        dissertation_info = {"jury_date": self.jury_date, "jury_ids": jury_ids, "student_id": student_id}
-        if not self.is_approved:
-            dissertation_info['status'] = 'Pending'
-        else:
-            dissertation_info['status'] = Evaluation.get_consensus(self.dissertation_id, len(jury_ids))
-        return dissertation_info
-
-    def delete_dissertation(self):
-        """
-        Delete a dissertation alongside with
-            its associated objects.
-        """
-        defending = Defending.fetch_where('dissertation_id', self.dissertation_id)
-        defending[0].delete()
-        members = Member.fetch_where('dissertation_id', self.dissertation_id)
-        for member in members:
-            member.delete()
-        self.delete()
-
-
-@bind_database(obj_id_row='member_id')
-@dataclass
-class Member:
-    """
-    Represents the relationship between a jury member and a
-        dissertation they evaluate on.
-    """
-    member_id: int
-    dissertation_id: int
-    jury_id: int
-
-
-@bind_database(obj_id_row='defending_id')
-@dataclass
-class Defending:
-    """
-    Represents the relationship between a student and the dissertation
-        their thesis is evaluated in.
-    """
-    defending_id: int
-    dissertation_id: int
-    student_id: int
-
-
-@bind_database(obj_id_row='has_id')
-@dataclass
-class Has:
-    """
-    Represents who owns a thesis.
-    """
-    has_id: int
-    thesis_id: int
-    student_id: int
-
-
-@bind_database(obj_id_row='evaluation_id')
-@dataclass
-class Evaluation:
-    """
-    Represents an evaluation by a jury member on
-        a specific dissertation.
-    """
-    evaluation_id: int
-    dissertation_id: int
-    jury_id: int
-    evaluation: str
-
-    @classmethod
-    def get_consensus(cls, dissertation_id: int, member_count: int) -> str:
-        """
-        Get the consensus about the Thesis state of the student.
-
-        :param dissertation_id: ID of the dissertation.
-        :param member_count: Number of jury members in dissertations.
-        :return The consensus of the dissertation.
-        """
-        evaluations: List[Evaluation] = Evaluation.fetch_where('dissertation_id', dissertation_id)
-        decisions = {"Correction": 0, "Rejected": 0, "Approved": 0}
-        for evaluation in evaluations:
-            decisions[evaluation.evaluation] += 1
-        if sum(decisions.values()) == member_count:
-            items = decisions.items()
-            items = list(items)
-            items.sort(key=lambda item: item[1], reverse=True)
-            return items[0][0]
-        else:
-            return "Undecided"
-
-
 @bind_database(obj_id_row='dbr_id')
 @dataclass
 class DBR(User_):
@@ -460,35 +256,42 @@ class DBR(User_):
         advisors = Advisor.fetch_where('department_id', self.department_id)
         return [advisor.user_id for advisor in advisors]
 
-
-def get_user(class_type: type, user_id: int) -> Optional[dict]:
+@bind_database(obj_id_row='dissertation_id')
+@dataclass
+class Dissertation:
     """
-    Get a user's information excluding the password.
-
-    :param class_type: Class of the user, student or advisor.
-    :param user_id: ID of the user.
-    :return The user information as a dictionary or None if no such user exists.
+    Represents the exam done to evaluate whether or not if
+        a thesis shall pass. Turkish for this term is Tez
+        Savunma Sınavı.
     """
-    if class_type not in [Student, Advisor, DBR, Jury]:
-        raise InvalidUserClassException
-    if not class_type.has(user_id):
-        return None
-    user_ = class_type.fetch(user_id)
-    dict_ = asdict(user_)  # Get the user information as a dictionary.
-    if class_type == Student:
-        dict_['latest_thesis_id'] = user_.latest_thesis_id
-    del dict_['password']  # Delete password information.
-    convert_department(dict_)
-    return dict_
+    dissertation_id: int
+    jury_date: int
+    is_approved: int  # TSS date and jury configuration must be approved first.
 
+    def get_info(self, student_id) -> Optional[dict]:
+        """
+        Get info about dissertation.
+        """
+        if not Member.has_where('dissertation_id', self.dissertation_id):
+            return None
+        member_relationships: List[Member] = Member.fetch_where('dissertation_id', self.dissertation_id)
+        jury_members: List["Jury"] = [Jury.fetch(member.jury_id) for member in member_relationships]
+        jury_ids = [jury.jury_id for jury in jury_members]
+        dissertation_info = {"jury_date": self.jury_date, "jury_ids": jury_ids, "student_id": student_id}
+        if not self.is_approved:
+            dissertation_info['status'] = 'Pending'
+        else:
+            dissertation_info['status'] = Evaluation.get_consensus(self.dissertation_id, len(jury_ids))
+        return dissertation_info
 
-def convert_department(user_dict: dict) -> None:
-    """
-    Given a user dataclass' dictionary representation,
-        convert the department_id field to department
-        and its key to the name of the department.
-    """
-    department_id = user_dict['department_id']
-    department_name = Department.fetch(int(department_id)).department_name
-    del user_dict['department_id']
-    user_dict['department'] = department_name
+    def delete_dissertation(self):
+        """
+        Delete a dissertation alongside with
+            its associated objects.
+        """
+        defending = Defending.fetch_where('dissertation_id', self.dissertation_id)
+        defending[0].delete()
+        members = Member.fetch_where('dissertation_id', self.dissertation_id)
+        for member in members:
+            member.delete()
+        self.delete()
