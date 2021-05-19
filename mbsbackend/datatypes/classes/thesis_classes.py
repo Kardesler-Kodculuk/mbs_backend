@@ -1,6 +1,6 @@
 from mbsbackend.datatypes.database import bind_database
 from dataclasses import dataclass
-from typing import Optional, List
+from typing import List
 
 
 @bind_database(obj_id_row='thesis_id')
@@ -15,8 +15,6 @@ class Thesis:
     plagiarism_ratio: int
     thesis_topic: str
     submission_date: int
-
-
 
 @bind_database(obj_id_row='member_id')
 @dataclass

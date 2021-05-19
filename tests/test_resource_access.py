@@ -3,10 +3,8 @@
 import sqlite3
 from os import environ
 import flask_unittest
-import flask.globals
-from flask import Response, request
 from flask.testing import FlaskClient
-from tests.expected_responses import expected_student_get_0, expected_advisor_get_1, expected_proposals, \
+from tests.expected_responses import expected_student_get_0, expected_advisor_get_1, \
     expected_recommendations, expected_student_defending_list, expected_student_department_list
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.

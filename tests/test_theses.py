@@ -1,6 +1,5 @@
 import os
 import sqlite3
-from io import BytesIO
 from os import environ
 from os.path import exists
 import flask_unittest

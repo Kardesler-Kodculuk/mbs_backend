@@ -1,10 +1,7 @@
 from os import environ
-from sqlite3 import connect
 
 import flask_unittest
 from flask.testing import FlaskClient
-
-from tests.expected_responses import advisors_list, recommended_advisors
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app

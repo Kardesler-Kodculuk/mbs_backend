@@ -25,14 +25,3 @@ def authenticate(username, password) -> Optional[User_]:
     user: List[User_] = User_.fetch_where("email", username)  # MBS uses email as the username.
     if user and _authenticate_password(password, user[0].password):  # If the password is confirmed
         return user[0]  # Return the user.
-
-
-def identity(payload) -> User_:
-    """
-    Get the user from the decrypted JWT payload.
-
-    :param payload: Payload from the decrypted JWT.
-    :return User object in the JWT.
-    """
-    user_id = payload['identity']
-    return User_.fetch(user_id)

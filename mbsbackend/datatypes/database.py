@@ -2,15 +2,12 @@
 This module contains functions and classes that connect to the
     database.
 """
-from abc import abstractmethod, abstractproperty, ABC
-from logging import log, debug
-from os import getenv, remove
+from abc import abstractmethod, ABC
+from os import getenv
 from os.path import exists
 import sqlite3
-from typing import Optional, Tuple, Callable, Any, Dict, List, Union
+from typing import Optional, Any, Dict, List, Union
 from dataclasses import is_dataclass
-from re import compile
-
 
 class QueryHandler(ABC):
     """

@@ -6,16 +6,12 @@ from os import getenv, urandom
 from flask_cors import CORS
 from flask import Flask
 from flask_jwt_extended import JWTManager, create_access_token, set_access_cookies, get_jwt_identity, get_jwt
-from mbsbackend.datatypes.classes.user_classes import User_, Student, Advisor, DBR, Jury, Dissertation
-from mbsbackend.datatypes.classes.user_relationships import Proposal, Recommended, Instructor
-from mbsbackend.datatypes.classes.thesis_classes import Thesis, Has, Defending, Evaluation
+from mbsbackend.datatypes.classes.user_classes import User_
 from mbsbackend.datatypes.classes.user_utility import convert_department, get_user
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
-from mbsbackend.server_internals.authentication import authenticate, identity
-from mbsbackend.server_internals.consants import forbidden_fields, version_number
-from mbsbackend.server_internals.verification import returns_json, full_json, requires_json
-from mbsbackend.blueprints import create_thesis_management_routes, create_student_approval_routes, \
-    create_dissertation_routes, create_login_routes, create_recommendations_routes
+from mbsbackend.server_internals.authentication import authenticate
+from mbsbackend.server_internals.consants import version_number
+from mbsbackend.blueprints import *
 
 
 def create_app() -> Flask:
