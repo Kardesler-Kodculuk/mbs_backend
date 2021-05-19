@@ -66,7 +66,7 @@ class TestUpdateStudentThesisInvalidJSON(flask_unittest.ClientTestCase):
         self.assertDictEqual(resp.json, {'msg': 'ERROR: Expected valid JSON in Request body.'})
 
 
-class TestAdvisorUpdateStudentThesis(TestUpdateStudentThesis):
+class TestAdvisorUpdateStudentThesis(flask_unittest.ClientTestCase):
     """
     Test if the advisor can update a student's thesis.
     """
@@ -75,3 +75,30 @@ class TestAdvisorUpdateStudentThesis(TestUpdateStudentThesis):
     def setUp(self, client: FlaskClient) -> None:
         client.post('/jwt', json={"username": "advisortest@iyte.edu.tr", "password": "test+7348"})
         self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        with sqlite3.connect("test.db") as connection:
+            cur = connection.cursor()
+            cur.execute("UPDATE Student SET thesis_topic = 'Graph Visualisation' WHERE student_id = 0")
+            connection.commit()  # Restore database to its original form.
+        client.delete('/jwt')  # Logout.
+
+    def test_set_student_thesis_topic(self, client: FlaskClient) -> None:
+        resp = client.patch('students/0', json={"thesis_topic": "Parser Combinators"})
+        self.assertStatus(resp, 200)
+        expected_student_modified = expected_student_get_0
+        expected_student_modified['thesis_topic'] = "Parser Combinators"
+        self.assertDictEqual(resp.json, expected_student_modified)  # Let us check the return first.
+
+    def test_set_student_thesis_topic_db(self, client: FlaskClient) -> None:
+        """
+        We are also going to check if the changes make it through to
+            the database proper.
+        """
+        resp = client.patch("students/0", json={"thesis_topic": "Recursive Descent Parsers"})
+        self.assertStatus(resp, 200)  # Just to make sure this one makes it through as well.
+        with sqlite3.connect("test.db") as connection:
+            cur = connection.cursor()
+            cur.execute("SELECT thesis_topic FROM Student WHERE student_id = 0")
+            topic = cur.fetchone()[0]
+            self.assertEqual(topic, "Recursive Descent Parsers")
