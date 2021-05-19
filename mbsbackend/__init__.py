@@ -600,4 +600,56 @@ def create_app() -> Flask:
             return {"evaluation": evaluation[0].evaluation}, 200
         return {"msg": "Not found."}, 404
 
+    @app.route('/recommendations/<student_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_recommendations_of(student_id: str) -> Tuple[dict, int]:
+        """
+        Get the recommendations of the student, as DBR.
+        """
+        dbr = current_user.downcast()
+        if not isinstance(dbr, DBR):
+            return {"msg": "Unauthorised"}, 403
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if student.department_id != dbr.department_id:
+            return {"msg": "Unauthorised to view this student"}, 403
+        recommendations = student.recommendations
+        return {"recommended_advisors": [recommendation.advisor_id for recommendation in recommendations]}, 200
+
+    @app.route('/recommendations/<student_id>', methods=['POST'])
+    @full_json(required_keys=('advisor_id',))
+    @jwt_required()
+    def post_recommendations(student_id: str) -> Tuple[dict, int]:
+        """
+        Post a new recommendation for a student, as DBR.
+        """
+        dbr = current_user.downcast()
+        if not isinstance(dbr, DBR):
+            return {"msg": "Unauthorised"}, 403
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student: Student = Student.fetch(id_)
+        if student.department_id != dbr.department_id:
+            return {"msg": "Unauthorised to view this student"}, 403
+        new_recommendation = Recommended(-1, int(student_id), request.json['advisor_id'])
+        new_recommendation.create()
+        return {"msg": "Recommendation created."}, 201
+
+    @app.route('/advisors', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_department_advisors() -> Tuple[dict, int]:
+        """
+        Get all advisors in a department, as DBR.
+        """
+        dbr = current_user.downcast()
+        if not isinstance(dbr, DBR):
+            return {"msg": "Unauthorised"}, 403
+        advisors = dbr.advisors
+        return {"advisors": advisors}, 200
+
     return app

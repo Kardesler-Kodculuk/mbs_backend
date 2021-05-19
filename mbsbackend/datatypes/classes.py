@@ -453,6 +453,13 @@ class DBR(User_):
         students = Student.fetch_where('department_id', self.department_id)
         return [student.user_id for student in students]
 
+    @property
+    def advisors(self) -> List[int]:
+        if not Advisor.has_where('department_id', self.department_id):
+            return []
+        advisors = Advisor.fetch_where('department_id', self.department_id)
+        return [advisor.user_id for advisor in advisors]
+
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
     """

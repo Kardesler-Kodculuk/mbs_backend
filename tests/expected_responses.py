@@ -246,3 +246,20 @@ dissertation_expected_json = {
     "status": "Pending",
     "student_id": 26
 }
+
+advisors_list = {
+    "advisors": [
+        1,
+        3,
+        6,
+        9,
+        16
+    ]
+}
+
+recommended_advisors = {
+  "recommended_advisors": [
+      1,
+      3
+  ]
+}
