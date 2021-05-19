@@ -1,0 +1,5 @@
+from .thesis_management_routes import create_thesis_management_routes
+from .student_approval_routes import create_student_approval_routes
+from .dissertation_routes import create_dissertation_routes
+from .recommendations_routes import create_recommendations_routes
+from .login_routes import create_login_routes
