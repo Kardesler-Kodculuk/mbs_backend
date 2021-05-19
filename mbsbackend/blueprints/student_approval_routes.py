@@ -2,9 +2,11 @@ from typing import Tuple, Union
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, current_user
 from dataclasses import asdict
-from mbsbackend.datatypes.classes import Student, Advisor, Proposal, get_user, Jury, DBR
-from mbsbackend.server_internals.consants import forbidden_fields, version_number
-from mbsbackend.server_internals.verification import returns_json, full_json, requires_json
+from mbsbackend.datatypes.classes.user_classes import Student, Advisor, Jury, DBR
+from mbsbackend.datatypes.classes.user_relationships import Proposal
+from mbsbackend.datatypes.classes.user_utility import get_user
+from mbsbackend.server_internals.consants import forbidden_fields
+from mbsbackend.server_internals.verification import returns_json, full_json
 
 
 def create_student_approval_routes() -> Blueprint:

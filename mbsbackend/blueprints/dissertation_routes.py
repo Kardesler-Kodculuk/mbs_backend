@@ -4,7 +4,9 @@ This file includes the app routes.
 from typing import Tuple
 from flask import request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
-from mbsbackend.datatypes.classes import Student, Advisor, get_user, DBR, Jury, Evaluation
+from mbsbackend.datatypes.classes.user_classes import Student, Advisor, DBR, Jury
+from mbsbackend.datatypes.classes.user_utility import get_user
+from mbsbackend.datatypes.classes.thesis_classes import Evaluation
 from mbsbackend.server_internals.verification import returns_json, full_json
 
 

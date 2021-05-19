@@ -1,6 +1,6 @@
 from typing import Optional, List
 from passlib.hash import pbkdf2_sha256
-from mbsbackend.datatypes.classes import User_
+from mbsbackend.datatypes.classes.user_classes import User_
 
 
 def _authenticate_password(user_input: str, hash_: str) -> bool:

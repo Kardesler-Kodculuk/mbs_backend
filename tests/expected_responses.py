@@ -1,5 +1,3 @@
-from hashlib import md5
-
 expected_student = {
   "role": "student",
   "username": "Barbara",

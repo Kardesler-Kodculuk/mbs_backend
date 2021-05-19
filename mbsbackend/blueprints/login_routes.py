@@ -3,7 +3,8 @@ from flask import request, jsonify, Blueprint
 from flask_jwt_extended import jwt_required, current_user, create_access_token, set_access_cookies, \
     unset_jwt_cookies
 from dataclasses import asdict
-from mbsbackend.datatypes.classes import User_, Student, Advisor, convert_department, DBR, Jury
+from mbsbackend.datatypes.classes.user_classes import User_, Student, Advisor, DBR, Jury
+from mbsbackend.datatypes.classes.user_utility import convert_department
 from mbsbackend.server_internals.authentication import authenticate
 from mbsbackend.server_internals.verification import returns_json
 

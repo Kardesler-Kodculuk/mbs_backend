@@ -4,7 +4,8 @@ This file includes the app routes used for recommending users.
 from typing import Tuple
 from flask import request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
-from mbsbackend.datatypes.classes import Student, Recommended, DBR
+from mbsbackend.datatypes.classes.user_classes import Student, DBR
+from mbsbackend.datatypes.classes.user_classes import Recommended
 from mbsbackend.server_internals.verification import returns_json, full_json
 
 

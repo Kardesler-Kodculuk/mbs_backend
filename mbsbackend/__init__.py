@@ -6,8 +6,10 @@ from os import getenv, urandom
 from flask_cors import CORS
 from flask import Flask
 from flask_jwt_extended import JWTManager, create_access_token, set_access_cookies, get_jwt_identity, get_jwt
-from mbsbackend.datatypes.classes import User_, Student, Advisor, Proposal, get_user, Recommended, Instructor, \
-    convert_department, Thesis, Has, DBR, Jury, Dissertation, Defending, Evaluation
+from mbsbackend.datatypes.classes.user_classes import User_, Student, Advisor, DBR, Jury, Dissertation
+from mbsbackend.datatypes.classes.user_relationships import Proposal, Recommended, Instructor
+from mbsbackend.datatypes.classes.thesis_classes import Thesis, Has, Defending, Evaluation
+from mbsbackend.datatypes.classes.user_utility import convert_department, get_user
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate, identity
 from mbsbackend.server_internals.consants import forbidden_fields, version_number

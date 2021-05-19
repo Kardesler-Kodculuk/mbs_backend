@@ -9,7 +9,8 @@ from dataclasses import asdict
 
 from werkzeug.utils import secure_filename
 
-from mbsbackend.datatypes.classes import Student, Thesis, Has
+from mbsbackend.datatypes.classes.user_classes import Student
+from mbsbackend.datatypes.classes.thesis_classes import Thesis, Has
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.verification import returns_json
 
