@@ -27,6 +27,7 @@ expected_advisor = {
     "user_id": 1,
     "advisor_id": 1,
     "name_": "Kathleen",
+    "is_jury": False,
     "surname": "Booth",
     "email": "advisortest@iyte.edu.tr",
     "department": "Computer Engineering",

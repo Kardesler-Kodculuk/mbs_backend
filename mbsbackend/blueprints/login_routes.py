@@ -73,7 +73,10 @@ def create_login_routes() -> Blueprint:
             user_info['role'] = 'advisor'
             user_info['advisor'] = asdict(user)
             if user.jury_credentials:
+                user_info['advisor']['is_jury'] = True
                 user_info['jury'] = asdict(user.jury_credentials)
+            else:
+                user_info['advisor']['is_jury'] = False
             user_info['username'] = user_info['advisor']['name_']  # Remove in Production. Backward Compatibility.
         elif isinstance(user, DBR):
             user_info['role'] = 'DBR'
