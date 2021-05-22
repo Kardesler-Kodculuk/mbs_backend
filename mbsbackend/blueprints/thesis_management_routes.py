@@ -32,7 +32,7 @@ def create_thesis_management_routes(plagiarism_api: PlagiarismManager) -> Bluepr
         theses = student.theses
         return [thesis.thesis_id for thesis in theses], 200
 
-    @thesis_management_routes.route('/theses/<thesis_id>/metadata', methods=['GET'])
+    @thesis_management_routes.route('/theses/metadata/<thesis_id>', methods=['GET'])
     @returns_json
     @jwt_required()
     def get_thesis_metadata(thesis_id) -> Tuple[dict, int]:

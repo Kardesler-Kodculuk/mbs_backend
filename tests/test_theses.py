@@ -37,7 +37,7 @@ class TestGetTheses(flask_unittest.ClientTestCase):
         """
         Check if the student can get the metadata of a specific thesis.
         """
-        resp = client.get('/theses/0/metadata')
+        resp = client.get('/theses/metadata/0')
         self.assertStatus(resp, 200)
         self.assertDictEqual(resp.json, expected_thesis_metadata_get)
 
@@ -45,7 +45,7 @@ class TestGetTheses(flask_unittest.ClientTestCase):
         """
         Attempt to get a nonexistent thesis' metadata.
         """
-        resp = client.get('/theses/10000/metadata')
+        resp = client.get('/theses/metadata/10000')
         self.assertStatus(resp, 404)
 
     def test_get_thesis_file(self, client: FlaskClient) -> None:
