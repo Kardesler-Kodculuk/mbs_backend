@@ -6,6 +6,8 @@ from os import getenv, urandom
 from flask_cors import CORS
 from flask import Flask
 from flask_jwt_extended import JWTManager, create_access_token, set_access_cookies, get_jwt_identity, get_jwt
+
+from mbsbackend.blueprints.form_routes import create_form_routes
 from mbsbackend.datatypes.classes.user_classes import User_
 from mbsbackend.datatypes.classes.user_utility import convert_department, get_user
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
@@ -38,6 +40,7 @@ def create_app() -> Flask:
     app.register_blueprint(create_dissertation_routes())
     app.register_blueprint(create_login_routes())
     app.register_blueprint(create_recommendations_routes())
+    app.register_blueprint(create_form_routes())
 
     @app.route('/')
     def test_url():

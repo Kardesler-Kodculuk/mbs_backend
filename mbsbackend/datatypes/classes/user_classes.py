@@ -42,6 +42,10 @@ class User_:
             if possibility.has(self.user_id):  # If user belongs to this class, we can fetch it.
                 return possibility.fetch(self.user_id)
 
+    @property
+    def full_name(self) -> str:
+        return self.name_ + ' ' + self.surname
+
 
 @bind_database(obj_id_row='advisor_id')
 @dataclass
@@ -244,6 +248,9 @@ class Student(User_):
         defending.create()
         return new_dissertation
 
+    @property
+    def department(self) -> Department:
+        return Department.fetch(self.department_id)
 
 @bind_database(obj_id_row='dbr_id')
 @dataclass
