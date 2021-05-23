@@ -108,6 +108,8 @@ def create_dissertation_routes():
             return {"msg": "Not the advisor of this student."}, 403
         elif student.dissertation_info:
             return {"msg": "Student already has one [possibly proposed] dissertation."}, 409
+        if not Jury.has(advisor.advisor_id):
+            advisor.create_jury()  # Generate Jury portion of an advisor if not already declared.
         dissertation = student.create_dissertation_for(request.json['jury_members'], request.json['dissertation_date'])
         if dissertation is None:
             return {"msg": "Jury member not found"}, 404

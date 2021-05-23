@@ -113,7 +113,7 @@ class TestProposeDissertation(flask_unittest.ClientTestCase):
         Attempt to propose a new dissertation with a date and jury members
         """
         resp = client.post('dissertation/26', json=dissertation_add_json)
-        self.assertStatus(resp, 201)
+        self.assertEqual(resp.status_code, 201, msg=resp.json['msg'])
         resp = client.get('dissertation/26')
         self.assertDictEqual(dissertation_expected_json, resp.json)
 

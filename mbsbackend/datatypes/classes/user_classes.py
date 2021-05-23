@@ -97,6 +97,14 @@ class Advisor(User_):
         """
         return self.advisor_id in student.dissertation_info['jury_ids']
 
+    def create_jury(self) -> None:
+        """
+        Make the advisor a Jury member as well.
+        """
+        new_jury = Jury(-1,  "", "", "", "", -1, self.advisor_id, False, "Izmir Institute of Technology",
+                        "+90 5XX XXX XX XX", False)
+        new_jury.create_unique()
+
 
 @bind_database(obj_id_row='jury_id')
 @dataclass
@@ -223,6 +231,8 @@ class Student(User_):
         :param dissertation_date: Date of the dissertation.
         :return the generated dissertation object or None if one jury member is not found.
         """
+        if self.advisor.advisor_id not in jury_members:
+            jury_members.append(self.advisor.advisor_id)
         if not all(Jury.has(jury_id) for jury_id in jury_members):
             return None
         new_dissertation = Dissertation(-1, dissertation_date, False)
@@ -233,6 +243,7 @@ class Student(User_):
         defending = Defending(-1, new_dissertation.dissertation_id, self.student_id)
         defending.create()
         return new_dissertation
+
 
 @bind_database(obj_id_row='dbr_id')
 @dataclass

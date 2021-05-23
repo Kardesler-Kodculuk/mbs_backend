@@ -232,13 +232,14 @@ jury_add_command = {
 
 dissertation_add_json = {
     "jury_members": [
-        16
+        20
     ],
     "dissertation_date": 234243
 }
 
 dissertation_expected_json = {
     "jury_ids": [
+        20,
         16
     ],
     "jury_date": 234243,
