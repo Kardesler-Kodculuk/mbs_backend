@@ -240,6 +240,7 @@ INSERT INTO Dissertation VALUES (1, 1621129275, TRUE); /** Add a dissertation. *
 INSERT INTO Defending VALUES (1, 1, 15); /** Another one. */
 INSERT INTO Member VALUES (0, 0, 20);
 INSERT INTO Member VALUES (1, 1, 20);
+INSERT INTO Member VALUES (6, 0, 16);
 
 INSERT INTO User_ VALUES (21, 'Elinor Katharine', 'Carlisle', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'katharine@std.iyte.edu.tr', 1);
 INSERT INTO Student VALUES (21, TRUE, TRUE, 2, 'Medieval History', 'Danelaw', 'NA', 'NA', FALSE);
