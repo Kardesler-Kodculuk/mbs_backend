@@ -7,7 +7,8 @@
 
 CREATE TABLE IF NOT EXISTS Department (
     department_id INTEGER PRIMARY KEY,
-    department_name TEXT UNIQUE
+    department_name TEXT UNIQUE,
+    turkish_department_name TEXT UNIQUE
 );
 
 CREATE TABLE IF NOT EXISTS USER_ (
@@ -150,7 +151,7 @@ INSERT INTO Instructor VALUES (0, 0, 1);
     A new advisor and two students who have proposed to him.
  */
 
-INSERT INTO Department VALUES (0, 'Computer Engineering');
+INSERT INTO Department VALUES (0, 'Computer Engineering', 'Bilgisayar Mühendisliği');
 
 INSERT INTO USER_ VALUES (3, 'Harry', 'Bouwman', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'bouwman@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (3, 'Operating Systems');
@@ -225,8 +226,8 @@ INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/
 INSERT INTO Instructor VALUES (5, 17, 16);
 
 /** DBR Test Users */
-INSERT INTO Department VALUES (1, 'History');
-INSERT INTO Department VALUES (2, 'Not Available');
+INSERT INTO Department VALUES (1, 'History', 'Tarih');
+INSERT INTO Department VALUES (2, 'Not Available', '-');
 INSERT INTO User_ VALUES (18, 'Roddy', 'Welman', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'welman@pers.iyte.edu.tr', 0);
 INSERT INTO DBR VALUES (18);
 INSERT INTO User_ VALUES (19, 'Peter', 'Lord', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'lord@pers.iyte.edu.tr', 1);

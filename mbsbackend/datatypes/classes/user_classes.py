@@ -14,6 +14,7 @@ class Department:
     """
     department_id: int
     department_name: str
+    turkish_department_name: str
 
 
 @bind_database(obj_id_row='user_id')
@@ -49,7 +50,6 @@ class User_:
     @property
     def department(self) -> Department:
         return Department.fetch(self.department_id)
-
 
 
 @bind_database(obj_id_row='advisor_id')
@@ -321,3 +321,19 @@ class Dissertation:
         dissertation_info = self.get_info(student_id)
         jury_members = [Jury.fetch(id_) for id_ in self.get_info(student_id)['jury_ids']]
         return jury_members
+
+    @property
+    def by_majority(self) -> bool:
+        """
+        Is the decision taken by majority.
+
+        :return True if the Dissertation decision is taken by
+             majority as opposed to by everyone in the group.
+        """
+        evaluations: List[Evaluation] = Evaluation.fetch_where('dissertation_id', self.dissertation_id)
+        decisions = {"Correction": 0, "Rejected": 0, "Approved": 0}
+        for evaluation in evaluations:
+            decisions[evaluation.evaluation] += 1
+        results = list(decisions.keys())
+        results.sort(reverse=True)
+        return results.pop(0) != len(evaluations)
