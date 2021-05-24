@@ -66,3 +66,20 @@ def generate_form_tj_a(student) -> str:
         "obs_manager": OBSApi
     }, "TJ-a")
 
+
+def generate_form_tj(student) -> str:
+    """
+    Generate form TJ.
+    """
+    juries = student.dissertation.get_jury_members(student.student_id)
+    date_ = date.fromtimestamp(student.dissertation.jury_date)
+    institute_juries = [jury for jury in juries if not jury.is_appointed]
+    outside_juries = [jury for jury in juries if jury.is_appointed]
+    return generate_from_template({
+        'len': len,
+        'date': date_,
+        'juries': institute_juries,
+        'outside_juries': outside_juries,
+        'obs_manager': OBSApi,
+        'student': student
+    }, 'TJ')
