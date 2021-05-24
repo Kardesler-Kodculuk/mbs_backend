@@ -30,3 +30,7 @@ class OBSApi:
     @staticmethod
     def correct_grading(student_email: str) -> str:
         return True
+
+    @staticmethod
+    def check_requirements(student_email: str) -> bool:
+        return True

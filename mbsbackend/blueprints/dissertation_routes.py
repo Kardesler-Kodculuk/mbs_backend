@@ -7,6 +7,7 @@ from flask_jwt_extended import jwt_required, current_user
 from mbsbackend.datatypes.classes.user_classes import Student, Advisor, DBR, Jury
 from mbsbackend.datatypes.classes.user_utility import get_user
 from mbsbackend.datatypes.classes.thesis_classes import Evaluation
+from mbsbackend.external_services.obs_api import OBSApi
 from mbsbackend.server_internals.verification import returns_json, full_json
 
 
@@ -86,6 +87,8 @@ def create_dissertation_routes():
         dissertation_info = Student.fetch(id_).dissertation_info
         if dissertation_info:
             return dissertation_info, 200
+        elif not OBSApi.check_requirements(Student.fetch(id_).email):
+            return {"msg": "Student does not met the requirements"}, 409
         else:
             return {"msg": "Student does not have a dissertation."}, 404
 
