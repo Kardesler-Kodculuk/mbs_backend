@@ -10,7 +10,9 @@ import mbsbackend.server_internals.form_generation as form_generation
 
 
 form_functions: Dict[str, Callable] = {
-    "TD": form_generation.generate_form_td
+    "TD": form_generation.generate_form_td,
+    "TS": form_generation.generate_form_ts,
+    "TJ-a": form_generation.generate_form_tj_a
 }
 
 

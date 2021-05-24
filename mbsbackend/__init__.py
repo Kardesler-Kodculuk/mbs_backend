@@ -2,7 +2,7 @@
 This file includes the app routes.
 """
 from datetime import datetime, timezone, timedelta
-from os import getenv, urandom
+from os import getenv, urandom, remove
 from flask_cors import CORS
 from flask import Flask
 from flask_jwt_extended import JWTManager, create_access_token, set_access_cookies, get_jwt_identity, get_jwt
