@@ -20,7 +20,7 @@ form_functions: Dict[str, Callable] = {
 def create_form_routes() -> Blueprint:
     form_blueprint = Blueprint('form_routes', __name__)
 
-    @form_blueprint.route('/form/<student_id>/<form_id>')
+    @form_blueprint.route('/forms/<student_id>/<form_id>')
     @jwt_required()
     def get_form(student_id: str, form_id: str) -> Response:
         """
