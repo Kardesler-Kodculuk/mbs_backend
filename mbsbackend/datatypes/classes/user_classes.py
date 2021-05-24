@@ -52,7 +52,6 @@ class User_:
         return Department.fetch(self.department_id)
 
 
-
 @bind_database(obj_id_row='advisor_id')
 @dataclass
 class Advisor(User_):

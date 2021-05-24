@@ -220,7 +220,7 @@ expected_dissertation = {
     "status": 'Undecided'
 }
 
-expected_jury_members = {"jury_members": [23, 24, 25]}
+expected_jury_members = {"jury_members": [23, 24, 25, 20]}
 
 jury_add_command = {
     "name_": "Charlotte Froese",

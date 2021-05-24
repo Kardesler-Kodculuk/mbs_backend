@@ -25,6 +25,8 @@ def create_dissertation_routes():
         if not isinstance(advisor, Advisor):
             return {"msg": "Only advisor can view the jury member list."}, 403
         jury_members = Jury.fetch_where('department_id', advisor.department_id)
+        outside_jury_members = Jury.fetch_where('department_id', 2)  # Out of faculty members are given 2 by tradition.
+        jury_members.extend(outside_jury_members)
         return {"jury_members": [jury.jury_id for jury in jury_members]}, 200
 
     @dissertation_routes.route('/jury', methods=['POST'])
