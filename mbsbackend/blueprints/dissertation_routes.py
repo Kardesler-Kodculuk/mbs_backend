@@ -100,7 +100,7 @@ def create_dissertation_routes():
         id_ = int(student_id)
         advisor = current_user.downcast()
         if not isinstance(advisor, Advisor):
-            return {'msg': 'Requries advisor user to do this.'}, 403
+            return {'msg': 'Requires advisor user to do this.'}, 403
         elif not Student.has(id_):
             return {'msg': 'Student not found.'}, 404
         student = Student.fetch(id_)
