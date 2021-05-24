@@ -42,6 +42,15 @@ class User_:
             if possibility.has(self.user_id):  # If user belongs to this class, we can fetch it.
                 return possibility.fetch(self.user_id)
 
+    @property
+    def full_name(self) -> str:
+        return self.name_ + ' ' + self.surname
+
+    @property
+    def department(self) -> Department:
+        return Department.fetch(self.department_id)
+
+
 
 @bind_database(obj_id_row='advisor_id')
 @dataclass
@@ -267,6 +276,7 @@ class DBR(User_):
         advisors = Advisor.fetch_where('department_id', self.department_id)
         return [advisor.user_id for advisor in advisors]
 
+
 @bind_database(obj_id_row='dissertation_id')
 @dataclass
 class Dissertation:
@@ -306,3 +316,8 @@ class Dissertation:
         for member in members:
             member.delete()
         self.delete()
+
+    def get_jury_members(self, student_id: int) -> List[Jury]:
+        dissertation_info = self.get_info(student_id)
+        jury_members = [Jury.fetch(id_) for id_ in self.get_info(student_id)['jury_ids']]
+        return jury_members
