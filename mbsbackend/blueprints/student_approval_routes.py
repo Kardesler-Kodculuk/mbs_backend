@@ -198,4 +198,20 @@ def create_student_approval_routes() -> Blueprint:
             return_dict['defenders'] = jury_version.students
         return return_dict, 200
 
+    @student_approval_routes.route('/students/advisor/<student_id>', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_student_advisor(student_id) -> Tuple[dict, int]:
+        """
+        Get a specific student's advisor.
+        """
+        id_ = int(student_id)
+        if not Student.has(id_):
+            return {"msg": "Student not found."}, 404
+        student = Student.fetch(id_)
+        if not student.advisor:
+            return {"msg": "Student does not have an advisor"}, 409
+        return {"advisor": get_user(Advisor, student.advisor.advisor_id)}, 200
+
+
     return student_approval_routes

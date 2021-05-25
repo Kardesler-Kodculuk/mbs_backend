@@ -5,7 +5,8 @@ from os import environ
 import flask_unittest
 from flask.testing import FlaskClient
 from tests.expected_responses import expected_student_get_0, expected_advisor_get_1, \
-    expected_recommendations, expected_student_defending_list, expected_student_department_list
+    expected_recommendations, expected_student_defending_list, expected_student_department_list, \
+    expected_advisor_of_student
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
@@ -109,3 +110,22 @@ class TestGetDepartmentStudents(flask_unittest.ClientTestCase):
         resp = client.get('/students')
         self.assertStatus(resp, 200)
         self.assertCountEqual(resp.json, expected_student_department_list)
+
+
+class TestGetStudentsAdvisor(flask_unittest.ClientTestCase):
+    """
+    Test if we can get a specific Student's advisor.
+    """
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "lord@pers.iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+
+    def test_get_students_advisor(self, client: FlaskClient) -> None:
+        resp = client.get('/students/advisor/0')
+        self.assertStatus(resp, 200)
+        self.assertDictEqual(resp.json['advisor'], expected_advisor_of_student['advisor'])
