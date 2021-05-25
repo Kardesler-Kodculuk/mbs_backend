@@ -146,6 +146,7 @@ expected_thesis_metadata_get = {
     "thesis_id": 0,
     "plagiarism_ratio": 15,
     "thesis_topic": "Artificial Intelligence",
+    "original_name": "grey_thesis_example0.pdf",
     "submission_date": 1621129273
 }
 

@@ -1,5 +1,6 @@
 import os.path
 import time
+import uuid
 from json import dumps
 from os import remove
 from typing import Tuple, Union
@@ -61,7 +62,8 @@ def create_thesis_management_routes(plagiarism_api: PlagiarismManager) -> Bluepr
         thesis = Thesis.fetch(thesis_id)
         thesis_info = asdict(thesis)
         thesis_path = thesis_info['file_path']  # It is better if the user is unaware of this.
-        return send_file(os.path.join(os.getcwd(), thesis_path), mimetype='application/pdf')
+        return send_file(os.path.join(os.getcwd(), thesis_path), mimetype='application/pdf',
+                         as_attachment=True, attachment_filename=thesis.original_name)
 
     @thesis_management_routes.route('/theses/<thesis_id>', methods=['DELETE'])
     @returns_json
@@ -98,9 +100,9 @@ def create_thesis_management_routes(plagiarism_api: PlagiarismManager) -> Bluepr
             return {"msg": "Files must contain a file with key file."}, 400
         file = request.files['file']
         filename = secure_filename(file.filename)
-        file.save(os.path.join(os.getcwd(), 'theses/', filename))  # Save to theses directory.
-        file_path = os.path.join('theses/', filename)  # Relative file path.
-        new_thesis_metadata = Thesis(-1, file_path, plagiarism_api.get_plagiarism_ratio(file_path),
+        file_path = os.path.join('theses/', uuid.uuid4().hex)
+        file.save(file_path)  # Save to theses directory.
+        new_thesis_metadata = Thesis(-1, file_path, filename, plagiarism_api.get_plagiarism_ratio(file_path),
                                      student.thesis_topic, round(time.time()))
         new_thesis_metadata.create()
         new_ownership = Has(-1, new_thesis_metadata.thesis_id, student.student_id)

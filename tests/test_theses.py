@@ -75,29 +75,31 @@ class TestUploadThesis(flask_unittest.ClientTestCase):
 
     def tearDown(self, client: FlaskClient) -> None:
         client.delete('/jwt')  # Logout.
-        os.remove('theses/grey_thesis_upload_example.pdf')
         with sqlite3.connect('test.db') as db:
             cur = db.cursor()
-            cur.execute("SELECT thesis_id FROM Thesis WHERE file_path = 'theses/grey_thesis_upload_example.pdf'")
-            thesis_id = cur.fetchone()[0]
+            cur.execute("SELECT thesis_id, file_path FROM Thesis WHERE original_name = 'grey_thesis_upload_example.pdf'")
+            thesis_id, path_ = cur.fetchone()
             cur.execute(f"DELETE FROM Thesis WHERE thesis_id = {thesis_id}")
             cur.execute(f"DELETE FROM Has WHERE thesis_id = {thesis_id}")
             db.commit()
-            # Restore database state.
+        os.remove(path_)
 
     def test_upload_thesis(self, client: FlaskClient) -> None:
         """
         Check if the student can upload a thesis.
         """
         data = {}
+        original_files = os.listdir('theses/')  # Get the names of the original files.
         with open('tests/example_pdfs/grey_thesis_upload_example.pdf', 'rb') as fp:
             data['file'] = (fp, 'grey_thesis_upload_example.pdf')
             resp = client.post('/theses', content_type='multipart/form-data', data=data)  # We are expecting a list of thesis ids.
         with open('tests/example_pdfs/grey_thesis_upload_example.pdf', 'rb') as fp:
             expected_hash = md5(fp.read()).digest()
         self.assertStatus(resp, 201)
-        self.assertTrue(exists('theses/grey_thesis_upload_example.pdf'))
-        with open('theses/grey_thesis_upload_example.pdf', 'rb') as fp:
+        new_files = [file_name for file_name in os.listdir('theses') if file_name not in original_files]
+        self.assertTrue(new_files)  # Make sure this is not empty.
+        new_file = new_files[0]
+        with open('theses/' + new_file, 'rb') as fp:
             actual_hash = md5(fp.read()).digest()
         self.assertEqual(actual_hash, expected_hash)
         json_response = resp.json
@@ -128,9 +130,13 @@ class TestDeleteThesis(flask_unittest.ClientTestCase):
             resp = client.post('/theses', content_type='multipart/form-data', data=data)  # We are expecting a list of thesis ids.
         json_response = resp.json
         thesis_id = json_response['thesis_id']
+        with sqlite3.connect('test.db') as db:
+            cur = db.cursor()
+            cur.execute(f"SELECT file_path FROM Thesis WHERE thesis_id = {thesis_id}")
+            file_path = cur.fetchone()[0]
         resp = client.delete(f'/theses/{thesis_id}')
         self.assertStatus(resp, 204)
-        self.assertFalse(exists('theses/grey_thesis_delete_example.pdf'), "File not properly deleted.")
+        self.assertFalse(exists(file_path), "File not properly deleted.")
         with sqlite3.connect('test.db') as db:
             cur = db.cursor()
             cur.execute(f"SELECT * FROM Thesis WHERE thesis_id = {thesis_id}")

@@ -12,9 +12,11 @@ class Thesis:
     """
     thesis_id: int
     file_path: str
+    original_name: str
     plagiarism_ratio: int
     thesis_topic: str
     submission_date: int
+
 
 @bind_database(obj_id_row='member_id')
 @dataclass
