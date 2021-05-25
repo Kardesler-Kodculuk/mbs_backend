@@ -1,3 +1,6 @@
+import datetime
+from time import strftime
+
 from mbsbackend.datatypes.database import bind_database
 from dataclasses import dataclass
 from typing import Optional, List, Union
@@ -337,3 +340,12 @@ class Dissertation:
         results = list(decisions.keys())
         results.sort(reverse=True)
         return results.pop(0) != len(evaluations)
+
+    @property
+    def formatted_date(self) -> str:
+        return strftime("%d/%m/%Y", datetime.datetime.fromtimestamp(self.jury_date).timetuple())
+
+    @property
+    def formatted_time(self) -> str:
+        return strftime("%H:%m", datetime.datetime.fromtimestamp(self.jury_date).timetuple())
+
