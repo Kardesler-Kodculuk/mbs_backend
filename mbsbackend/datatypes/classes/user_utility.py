@@ -1,7 +1,7 @@
 from typing import Optional
 from dataclasses import asdict
 from .class_exceptions import InvalidUserClassException
-from .user_classes import Student, Advisor, DBR, Jury, Department
+from .user_classes import Student, Advisor, DBR, Jury, Department, User_
 
 
 def get_user(class_type: type, user_id: int) -> Optional[dict]:
@@ -20,6 +20,8 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
     dict_ = asdict(user_)  # Get the user information as a dictionary.
     if class_type == Student:
         dict_['latest_thesis_id'] = user_.latest_thesis_id
+    elif class_type == Advisor:
+        dict_['is_jury'] = user_.jury_credentials is not None
     del dict_['password']  # Delete password information.
     convert_department(dict_)
     return dict_
@@ -35,3 +37,12 @@ def convert_department(user_dict: dict) -> None:
     department_name = Department.fetch(int(department_id)).department_name
     del user_dict['department_id']
     user_dict['department'] = department_name
+
+
+def get_role_name(user: User_) -> str:
+    if any(isinstance(user, class_) for class_ in (Advisor, Jury, Student)):
+        return {Advisor: 'advisor', Jury: 'jury', Student: 'student'}[user.__class__]
+        # It is actually impossible to do this using user.__class__.__name__ since that is overwritten
+        # by the bind_database decorator.
+    else:  # Otherwise must be DBR.
+        return 'DBR'

@@ -35,6 +35,19 @@ expected_advisor = {
   }
 }
 
+expected_advisor_of_student = {
+    "advisor": {
+        "user_id": 1,
+        "advisor_id": 1,
+        "name_": "Kathleen",
+        "is_jury": False,
+        "surname": "Booth",
+        "email": "advisortest@iyte.edu.tr",
+        "department": "Computer Engineering",
+        "doctoral_specialty": "Systems Programming"
+    }
+}
+
 expected_student_advisor = {
   "role": "student",
   "username": "Scott",
@@ -60,6 +73,7 @@ expected_student_advisor = {
     "advisor_id": 1,
     "name_": "Kathleen",
     "surname": "Booth",
+    "is_jury": False,
     "email": "advisortest@iyte.edu.tr",
     "department": "Computer Engineering",
     "doctoral_specialty": "Systems Programming"
@@ -88,6 +102,7 @@ expected_advisor_get_1 = {
     "user_id": 1,
     "advisor_id": 1,
     "name_": "Kathleen",
+    "is_jury": False,
     "surname": "Booth",
     "email": "advisortest@iyte.edu.tr",
     "department": "Computer Engineering",
