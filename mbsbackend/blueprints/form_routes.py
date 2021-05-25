@@ -7,7 +7,7 @@ from flask_jwt_extended import current_user, jwt_required
 
 from mbsbackend.datatypes.classes.user_classes import Student, DBR
 import mbsbackend.server_internals.form_generation as form_generation
-
+from mbsbackend.external_services.obs_api import OBSApi
 
 form_functions: Dict[str, Callable] = {
     "TD": form_generation.generate_form_td,
@@ -39,6 +39,8 @@ def create_form_routes() -> Blueprint:
             return Response(dumps({"msg": "Form not found."}), mimetype="application/json", status=404)
         else:
             return send_file(os.path.join(os.getcwd(), form_functions[form_id](student)),
-                             mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document')
+                             mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+                             as_attachment=True,
+                             attachment_filename=OBSApi.get_student_id(student.email) + f' Form {form_id}.pdf')
 
     return form_blueprint

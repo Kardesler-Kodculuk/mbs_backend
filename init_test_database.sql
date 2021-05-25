@@ -89,6 +89,7 @@ CREATE TABLE IF NOT EXISTS Proposal (
 CREATE TABLE IF NOT EXISTS Thesis (
     thesis_id INTEGER PRIMARY KEY,
     file_path TEXT UNIQUE,
+    original_name TEXT,
     plagiarism_ratio INTEGER,
     thesis_topic TEXT,
     submission_date INTEGER
@@ -219,9 +220,9 @@ INSERT INTO Advisor VALUES (16, 'Character Encoding');
 INSERT INTO Jury VALUES (16, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 INSERT INTO User_ VALUES (17, 'Jane', 'Grey', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'grey@std.iyte.edu.tr', 0);
 INSERT INTO Student VALUES (17, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', 'NA', FALSE);
-INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 15, 'Artificial Intelligence', 1621129273);
+INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 'grey_thesis_example0.pdf', 15, 'Artificial Intelligence', 1621129273);
 INSERT INTO Has VALUES (0, 0, 17); /** Add an example thesis.*/
-INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
+INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 'grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
 INSERT INTO Has VALUES (1, 1, 17); /** Add another example thesis.*/
 INSERT INTO Instructor VALUES (5, 17, 16);
 
