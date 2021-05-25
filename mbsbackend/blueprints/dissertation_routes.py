@@ -45,7 +45,7 @@ def create_dissertation_routes():
             [-1,
             req['name_'],
             req['surname'],
-            "dflkjgdfjkgkdfgfd",
+            "",
             req['email'],
             advisor.department_id],
             [-1,
