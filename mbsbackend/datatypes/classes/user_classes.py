@@ -141,7 +141,9 @@ class Jury(User_):
         return [defending_relationship.student_id for defending_relationship in defending_relationships]
 
     @classmethod
-    def add_new_jury(cls, user_args, jury_args):
+    def add_new_jury(cls, req, dep_id):
+        user_args = [-1, req['name_'], req['surname'], "", req['email'], dep_id]
+        jury_args = [-1, False, req['institution'], req['phone_number'], True]
         user = User_(*user_args)
         user.create()
         jury_args[0] = user.user_id

@@ -41,19 +41,7 @@ def create_dissertation_routes():
         req: dict = request.json
         if not isinstance(advisor, Advisor):
             return {"msg": "Only advisor add a new jury member."}, 403
-        new_jury_member = Jury.add_new_jury(
-            [-1,
-            req['name_'],
-            req['surname'],
-            "",
-            req['email'],
-            advisor.department_id],
-            [-1,
-            False,
-            req['institution'],
-            req['phone_number'],
-            True]
-        )
+        new_jury_member = Jury.add_new_jury(req, advisor.department_id)
         return get_user(Jury, new_jury_member.jury_id), 201
 
     @dissertation_routes.route('/jury/<jury_id>', methods=['GET'])
@@ -115,7 +103,11 @@ def create_dissertation_routes():
             return {"msg": "Student already has one [possibly proposed] dissertation."}, 409
         if not Jury.has(advisor.advisor_id):
             advisor.create_jury()  # Generate Jury portion of an advisor if not already declared.
-        dissertation = student.create_dissertation_for(request.json['jury_members'], request.json['dissertation_date'])
+        jury_members = request.json.get('jury_members', [])  # By default empty.
+        if 'new_members' in request.json:
+            jury_members.extend(Jury.add_new_jury(new_member, advisor.advisor_id).jury_id
+                                for new_member in request.json['new_members'])
+        dissertation = student.create_dissertation_for(jury_members, request.json['dissertation_date'])
         if dissertation is None:
             return {"msg": "Jury member not found"}, 404
         return {"msg": "Dissertation is created."}, 201
