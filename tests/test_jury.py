@@ -103,3 +103,6 @@ class TestAddJuryAsAdvisor(flask_unittest.ClientTestCase):
         self.assertStatus(resp, 201)
         self.jury_id = resp.json['user_id']
         self.assertLessEqual(jury_add_command.items(), resp.json.items())
+        resp = client.get(f'/jury/{resp.json["jury_id"]}')
+        self.assertStatus(resp, 200)
+        self.assertLessEqual(jury_add_command.items(), resp.json.items())

@@ -244,7 +244,7 @@ expected_jury_members = {"jury_members": [23, 24, 25, 20]}
 jury_add_command = {
     "name_": "Charlotte Froese",
     "surname": "Fischer",
-    "email": "grey@iyte.edu.tr",
+    "email": "fischer@miskatonic.edu.tr",
     "institution": "Miskatonic University",
     "phone_number": "+90 5XX XXX XX XX"
 }
@@ -253,6 +253,12 @@ dissertation_add_json = {
     "jury_members": [
         20
     ],
+    "dissertation_date": 234243
+}
+
+dissertation_add_json_with_new_members = {
+    **dissertation_add_json,
+    "new_members": [jury_add_command, ],
     "dissertation_date": 234243
 }
 
@@ -265,6 +271,7 @@ dissertation_expected_json = {
     "status": "Pending",
     "student_id": 26
 }
+
 
 advisors_list = {
     "advisors": [
@@ -282,3 +289,17 @@ recommended_advisors = {
       3
   ]
 }
+
+expected_jury_temp = {
+        "user_id": -1, # Must set this.
+        "jury_id": -1,  # Must set this
+        "is_approved": 0,
+        "name_": "Charlotte Froese",
+        "surname": "Fischer",
+        "email": "fischer@miskatonic.edu.tr",
+        "institution": "Miskatonic University",
+        "phone_number": "+90 5XX XXX XX XX",
+        "department": "Computer Engineering",
+        "is_appointed": 1
+}
+

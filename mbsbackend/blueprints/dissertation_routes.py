@@ -105,7 +105,7 @@ def create_dissertation_routes():
             advisor.create_jury()  # Generate Jury portion of an advisor if not already declared.
         jury_members = request.json.get('jury_members', [])  # By default empty.
         if 'new_members' in request.json:
-            jury_members.extend(Jury.add_new_jury(new_member, advisor.advisor_id).jury_id
+            jury_members.extend(Jury.add_new_jury(new_member, advisor.department_id).jury_id
                                 for new_member in request.json['new_members'])
         dissertation = student.create_dissertation_for(jury_members, request.json['dissertation_date'])
         if dissertation is None:

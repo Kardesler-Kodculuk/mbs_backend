@@ -5,7 +5,8 @@ from sqlite3 import connect
 import flask_unittest
 from flask.testing import FlaskClient
 
-from tests.expected_responses import expected_dissertation, dissertation_add_json, dissertation_expected_json
+from tests.expected_responses import expected_dissertation, dissertation_add_json, dissertation_expected_json, \
+    dissertation_add_json_with_new_members, expected_jury, expected_jury_temp
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
@@ -118,7 +119,7 @@ class TestProposeDissertation(flask_unittest.ClientTestCase):
         self.assertDictEqual(dissertation_expected_json, resp.json)
 
 
-class TestProposeDissertation(flask_unittest.ClientTestCase):
+class TestProposeDissertationWithNewMember(flask_unittest.ClientTestCase):
     app = create_app()
 
     def setUp(self, client: FlaskClient) -> None:
@@ -134,16 +135,37 @@ class TestProposeDissertation(flask_unittest.ClientTestCase):
             cur.execute("DELETE FROM Dissertation WHERE dissertation_id = (?)", (dissertation_id,))
             cur.execute("DELETE FROM Defending WHERE dissertation_id = (?)", (dissertation_id,))
             cur.execute("DELETE FROM Member WHERE dissertation_id = (?)", (dissertation_id,))
+            cur.execute("DELETE FROM Jury WHERE Institution = 'Miskatonic University'")
+            cur.execute("DELETE FROM User_ WHERE name_ = 'Charlotte Froese'")
             db.commit()
 
-    def test_propose_dissertation(self, client: FlaskClient) -> None:
+    def test_propose_dissertation_with_new_member(self, client: FlaskClient) -> None:
         """
-        Attempt to propose a new dissertation with a date and jury members
+        Attempt to propose a new dissertation with a date and jury members as well as new jury members
+            to add.
         """
-        resp = client.post('dissertation/26', json=dissertation_add_json)
+        resp = client.post('dissertation/26', json=dissertation_add_json_with_new_members)
         self.assertEqual(resp.status_code, 201, msg=resp.json['msg'])
         resp = client.get('dissertation/26')
-        self.assertDictEqual(dissertation_expected_json, resp.json)
+        actual_json = resp.json
+        ids_ = actual_json["jury_ids"]
+        normal_ids = dissertation_expected_json.get('jury_ids').copy()
+        self.assertEqual(len(ids_), 3)
+        new_jury_id = list(set(ids_).difference(set(normal_ids)))[0]  # This is the expected difference.
+        normal_ids.append(new_jury_id)
+        self.assertCountEqual(normal_ids, resp.json['jury_ids'])
+        self.assertEqual(resp.json["jury_date"], 234243)
+        self.assertEqual(resp.json["status"], "Pending")
+        self.assertEqual(resp.json["student_id"], 26)
+        # Now check if you can get the info on the new user.
+        resp = client.get(f'jury/{new_jury_id}')
+        self.assertStatus(resp, 200)
+        expected_jury_new = expected_jury_temp.copy()
+        expected_jury_new['jury_id'] = new_jury_id
+        expected_jury_new['user_id'] = new_jury_id
+        self.assertDictEqual(expected_jury_new, resp.json)
+
+
 
 class TestProposeDissertationFail(flask_unittest.ClientTestCase):
     app = create_app()
