@@ -8,15 +8,23 @@ from os.path import exists
 import sqlite3
 from typing import Optional, Any, Dict, List, Union
 from dataclasses import is_dataclass
+from threading import Lock
+
 
 class QueryHandler(ABC):
     """
     Class that encapsulates queries to the underlying
         DBMS.
     """
-    def __init__(self, conn: Union[sqlite3.Connection], cur: Union[sqlite3.Cursor]):
+    def __init__(self, conn: Union[sqlite3.Connection], cur: Union[sqlite3.Cursor], lock_for_access):
+        """
+        If lock_for_access is set to True, lock the database before making
+            any changes.
+        """
         self.connection = conn
         self.cursor = cur
+        self.should_lock = lock_for_access
+        self.lock = Lock()
 
     def execute_query(self, query: str) -> Optional[list]:
         """
@@ -28,10 +36,18 @@ class QueryHandler(ABC):
         :return The results of the fetch statement,
             or None.
         """
-        self.cursor.execute(query)
-        if "select" in query.lower():  # If this is a select query.
-            return self.cursor.fetchall()  # Fetch and return the results.
-        self.connection.commit()  # Otherwise commit the results.
+        return_value = None
+        if self.should_lock:
+            self.lock.acquire()
+        try:
+            self.cursor.execute(query)
+            if "select" in query.lower():  # If this is a select query.
+                return_value = self.cursor.fetchall()  # Fetch and return the results.
+            self.connection.commit()  # Otherwise commit the results.
+        finally:
+            if self.should_lock:
+                self.lock.release()
+        return return_value
 
     @property
     @abstractmethod
@@ -55,7 +71,7 @@ class TestQueryHandler(QueryHandler):
         if not is_init:  # If the database was not previously initalised.
             with open("init_test_database.sql") as script_f:  # Initialise the database.
                 cur.executescript(script_f.read())
-        super().__init__(conn, cur)
+        super().__init__(conn, cur, True)  # Locks are necessary for SQLite databases.
 
     def last_inserted_row_id(self) -> int:
         return self.cursor.lastrowid
