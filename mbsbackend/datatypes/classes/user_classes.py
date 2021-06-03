@@ -172,7 +172,6 @@ class Student(User_):
     program_name: str
     thesis_topic: str
     graduation_status: str
-    jury_tss_decision: str
     is_thesis_sent: bool
 
     @property

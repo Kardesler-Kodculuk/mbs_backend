@@ -118,6 +118,33 @@ class TestProposeDissertation(flask_unittest.ClientTestCase):
         self.assertDictEqual(dissertation_expected_json, resp.json)
 
 
+class TestProposeDissertation(flask_unittest.ClientTestCase):
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={"username": "oliver@iyte.edu.tr", "password": "test+7348"})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')  # Logout.
+        with connect('test.db') as db:
+            cur = db.cursor()
+            cur.execute("SELECT dissertation_id FROM Defending WHERE student_id = 26")
+            dissertation_id = cur.fetchone()[0]
+            cur.execute("DELETE FROM Dissertation WHERE dissertation_id = (?)", (dissertation_id,))
+            cur.execute("DELETE FROM Defending WHERE dissertation_id = (?)", (dissertation_id,))
+            cur.execute("DELETE FROM Member WHERE dissertation_id = (?)", (dissertation_id,))
+            db.commit()
+
+    def test_propose_dissertation(self, client: FlaskClient) -> None:
+        """
+        Attempt to propose a new dissertation with a date and jury members
+        """
+        resp = client.post('dissertation/26', json=dissertation_add_json)
+        self.assertEqual(resp.status_code, 201, msg=resp.json['msg'])
+        resp = client.get('dissertation/26')
+        self.assertDictEqual(dissertation_expected_json, resp.json)
+
 class TestProposeDissertationFail(flask_unittest.ClientTestCase):
     app = create_app()
 

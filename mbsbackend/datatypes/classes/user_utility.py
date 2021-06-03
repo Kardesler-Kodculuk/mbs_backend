@@ -21,6 +21,7 @@ def get_user(class_type: type, user_id: int) -> Optional[dict]:
     if class_type == Student:
         dict_['latest_thesis_id'] = user_.latest_thesis_id
         dict_['is_advisors_recommended'] = len(user_.recommendations) > 0
+        dict_['has_dissertation'] = user_.dissertation_info is not None
     elif class_type == Advisor:
         dict_['is_jury'] = user_.jury_credentials is not None
     del dict_['password']  # Delete password information.

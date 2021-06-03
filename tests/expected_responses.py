@@ -14,7 +14,7 @@ expected_student = {
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
-    "jury_tss_decision": "NA",
+    "has_dissertation": False,
     "is_thesis_sent": 0,
     "latest_thesis_id": -1,
     'is_advisors_recommended': True
@@ -65,7 +65,7 @@ expected_student_advisor = {
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
-    "jury_tss_decision": "NA",
+    "has_dissertation": False,
     "is_thesis_sent": 0,
     "latest_thesis_id": -1,
     'is_advisors_recommended': False
@@ -95,7 +95,7 @@ expected_student_get_0 = {
     "program_name": "Computer Engineering",
     "thesis_topic": "Graph Visualisation",
     "graduation_status": "NA",
-    "jury_tss_decision": "NA",
+    "has_dissertation": False,
     "is_thesis_sent": 0,
     "latest_thesis_id": -1,
     'is_advisors_recommended': False
