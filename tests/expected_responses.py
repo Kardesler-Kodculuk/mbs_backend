@@ -16,7 +16,8 @@ expected_student = {
     "graduation_status": "NA",
     "jury_tss_decision": "NA",
     "is_thesis_sent": 0,
-    "latest_thesis_id": -1
+    "latest_thesis_id": -1,
+    'is_advisors_recommended': True
   }
 }
 
@@ -66,7 +67,8 @@ expected_student_advisor = {
     "graduation_status": "NA",
     "jury_tss_decision": "NA",
     "is_thesis_sent": 0,
-    "latest_thesis_id": -1
+    "latest_thesis_id": -1,
+    'is_advisors_recommended': False
   },
   "advisor": {
     "user_id": 1,
@@ -95,7 +97,8 @@ expected_student_get_0 = {
     "graduation_status": "NA",
     "jury_tss_decision": "NA",
     "is_thesis_sent": 0,
-    "latest_thesis_id": -1
+    "latest_thesis_id": -1,
+    'is_advisors_recommended': False
 }
 
 expected_advisor_get_1 = {

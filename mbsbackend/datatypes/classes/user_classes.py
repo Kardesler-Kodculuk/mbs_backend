@@ -188,8 +188,6 @@ class Student(User_):
 
     @property
     def recommendations(self) -> List[Recommended]:
-        if self.advisor:
-            raise StudentAlreadyHasAdvisorException
         recommendations: List[Recommended] = []
         if Recommended.has_where('student_id', self.student_id):  # If any recommendation available.
             # Add them to the list.

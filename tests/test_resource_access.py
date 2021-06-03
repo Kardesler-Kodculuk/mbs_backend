@@ -31,6 +31,11 @@ class TestGetResources(flask_unittest.ClientTestCase):
         resp = client.get('students/1')
         self.assertStatus(resp, 400)
 
+    def test_get_student_with_advisor_recommendations(self, client: FlaskClient) -> None:
+        resp = client.get('students/2')
+        self.assertStatus(resp, 200)
+        self.assertTrue(resp.json['is_advisors_recommended'])
+
     def test_get_advisor(self, client: FlaskClient) -> None:
         resp = client.get('advisors/1')
         self.assertStatus(resp, 200)
