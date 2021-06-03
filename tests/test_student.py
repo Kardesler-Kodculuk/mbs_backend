@@ -41,6 +41,17 @@ class TestUpdateStudentThesis(flask_unittest.ClientTestCase):
             topic = cur.fetchone()[0]
             self.assertEqual(topic, "Recursive Descent Parsers")
 
+    def test_set_student_thesis_topic_get(self, client: FlaskClient) -> None:
+        """
+        We are also going to check if the changes make it through to
+            the database proper and then if when we send a request,
+            does this GET request properly resolve?
+        """
+        resp = client.patch("students/0", json={"thesis_topic": "Recursive Descent Parsers"})
+        self.assertStatus(resp, 200)  # Just to make sure this one makes it through as well.
+        resp = client.get("students/0")
+        self.assertEqual(resp.json['thesis_topic'], "Recursive Descent Parsers")
+
 
 class TestUpdateStudentThesisInvalidJSON(flask_unittest.ClientTestCase):
     """
