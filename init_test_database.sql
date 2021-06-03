@@ -281,3 +281,5 @@ INSERT INTO Member VALUES (5, 3, 20);
 INSERT INTO User_ VALUES (26, 'Bob', 'Nathan', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'nathan@std.iyte.edu.tr', 0);
 INSERT INTO Student VALUES (26, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', FALSE);
 INSERT INTO Instructor VALUES (6, 26, 16);
+INSERT INTO Thesis VALUES (2, 'theses/bob_nathan_thesis.pdf', 'bob_nathan_thesis.pdf', 10, 'Artificial Intelligence', 1621129275);
+INSERT INTO Has VALUES (2, 2, 26); /** Add another example thesis.*/
