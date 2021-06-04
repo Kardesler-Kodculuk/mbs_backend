@@ -4,7 +4,7 @@ from sqlite3 import connect
 import flask_unittest
 from flask.testing import FlaskClient
 
-from tests.expected_responses import advisors_list, recommended_advisors
+from tests.expected_responses import advisors_list, recommended_advisors, students_without_recommendations
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
@@ -89,3 +89,12 @@ class TestDBRRecommendationsFail(flask_unittest.ClientTestCase):
         """
         resp = client.get('/recommendations/2')
         self.assertEqual(resp.status_code, 403)
+
+    def test_get_students_without_recommendations(self, client: FlaskClient) -> None:
+        """
+        And now for something completely different: Get a list of students without recommendations.
+        This is here because lord@pers.iyte.edu.tr is the history advisor so.
+        """
+        resp = client.get('/recommendations/needed')
+        self.assertStatus(resp, 200)
+        self.assertDictEqual(students_without_recommendations, resp.json)

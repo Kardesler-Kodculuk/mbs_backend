@@ -32,6 +32,18 @@ def create_recommendations_routes() -> Blueprint:
         recommendations = student.recommendations
         return {"recommended_advisors": [recommendation.advisor_id for recommendation in recommendations]}, 200
 
+    @recommendations_routes.route('/recommendations/needed', methods=['GET'])
+    @returns_json
+    @jwt_required()
+    def get_students_needing_recommendations() -> Tuple[dict, int]:
+        """
+        Get a list of students that need recommendations.
+        """
+        dbr = current_user.downcast()
+        if not isinstance(dbr, DBR):
+            return {"msg": "Unauthorized"}, 403
+        return {"students_without_recommendations": dbr.students_without_recommendations}, 200
+
     @recommendations_routes.route('/recommendations/<student_id>', methods=['POST'])
     @full_json(required_keys=('advisor_id',))
     @jwt_required()

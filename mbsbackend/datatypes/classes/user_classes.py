@@ -194,6 +194,13 @@ class Student(User_):
         return recommendations  # Return the list.
 
     @property
+    def is_advisors_recommended(self) -> bool:
+        """
+        Return true if a Student's advisors have been recommended.
+        """
+        return any((self.advisor, self.recommendations, self.proposals))
+
+    @property
     def proposals(self) -> List[Proposal]:
         proposals: List[Proposal] = []
         if Proposal.has_where('student_id', self.student_id):
@@ -288,6 +295,16 @@ class DBR(User_):
             return []
         students = Student.fetch_where('department_id', self.department_id)
         return [student.user_id for student in students]
+
+    @property
+    def students_without_recommendations(self) -> List[int]:
+        """
+        Return a list of Student IDs of the Students that need a recommendation.
+        """
+        if not Student.has_where('department_id', self.department_id):
+            return []
+        students = Student.fetch_where('department_id', self.department_id)
+        return [student.user_id for student in students if not student.is_advisors_recommended]
 
     @property
     def advisors(self) -> List[int]:

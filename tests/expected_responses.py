@@ -303,3 +303,4 @@ expected_jury_temp = {
         "is_appointed": 1
 }
 
+students_without_recommendations = {"students_without_recommendations": [27]}  # For history.

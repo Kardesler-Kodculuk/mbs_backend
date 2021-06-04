@@ -16,19 +16,19 @@ class OBSApi:
     """
 
     @staticmethod
-    def took_classes(student_email: str) -> str:
+    def took_classes(student_email: str) -> bool:
         return True
 
     @staticmethod
-    def completed_credit(student_email: str) -> str:
+    def completed_credit(student_email: str) -> bool:
         return True
 
     @staticmethod
-    def check_gpa(student_email: str) -> str:
+    def check_gpa(student_email: str) -> bool:
         return True
 
     @staticmethod
-    def correct_grading(student_email: str) -> str:
+    def correct_grading(student_email: str) -> bool:
         return True
 
     @staticmethod
