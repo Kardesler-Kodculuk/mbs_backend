@@ -286,3 +286,6 @@ INSERT INTO Has VALUES (2, 2, 26); /** Add another example thesis.*/
 
 INSERT INTO User_ VALUES (27, 'Ged', 'Sparrowhawk', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'sparrowhawk@std.iyte.edu.tr', 1);
 INSERT INTO Student VALUES (27, TRUE, TRUE, 2, 'History', 'Earthsea History Before Erreth-Akbe', 'NA', FALSE);
+
+INSERT INTO User_ VALUES (28, 'Tenar', 'Atuan', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'atuan@std.iyte.edu.tr', 0);
+INSERT INTO Student VALUES (28, TRUE, TRUE, 2, 'Computer Engineering', 'Advanced Raycasting', 'NA', FALSE);
