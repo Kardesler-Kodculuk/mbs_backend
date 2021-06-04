@@ -6,7 +6,7 @@ import flask_unittest
 from hashlib import md5
 from flask.testing import FlaskClient
 from tests.expected_responses import expected_pdf_file_name, expected_theses_list, expected_thesis_metadata_get, \
-    expected_pdf_upload_resp
+    expected_pdf_upload_resp, expected_sparrowhawk
 
 environ['FLASK_DB_NAME'] = 'test.db'  # This must be set before first importing the backend itself.
 from mbsbackend import create_app
@@ -143,6 +143,34 @@ class TestDeleteThesis(flask_unittest.ClientTestCase):
             self.assertIsNone(cur.fetchone())
             cur.execute(f"SELECT * FROM Has WHERE thesis_id = {thesis_id}")
             self.assertIsNone(cur.fetchone())
+
+
+class TestLastThesisDelete(flask_unittest.ClientTestCase):
+    """
+    Test if deleting the student's last thesis breaks the code.
+    """
+    app = create_app()
+
+    def setUp(self, client: FlaskClient) -> None:
+        client.post('/jwt', json={'username': 'sparrowhawk@std.iyte.edu.tr', 'password': 'test+7348'})
+        self.maxDiff = None
+
+    def tearDown(self, client: FlaskClient) -> None:
+        client.delete('/jwt')
+
+    def test_delete_last_thesis(self, client: FlaskClient) -> None:
+        data = {}
+        with open('tests/example_pdfs/grey_thesis_upload_example.pdf', 'rb') as fp:
+            data['file'] = (fp, 'grey_thesis_upload_example.pdf')
+            resp = client.post('/theses', content_type='multipart/form-data',
+                               data=data)  # We are expecting a list of thesis ids.
+        # Now that we have uploaded the thesis, let us delete it.
+        thesis_id = resp.json['thesis_id']
+        resp = client.delete(f'/theses/{thesis_id}')
+        self.assertStatus(resp, 204)  # Assert that we have successfully deleted it.
+        resp = client.get('/users')
+        self.assertDictEqual(expected_sparrowhawk, resp.json)
+
 
 
 class TestLatestThesisID(flask_unittest.ClientTestCase):

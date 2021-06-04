@@ -304,3 +304,27 @@ expected_jury_temp = {
 }
 
 students_without_recommendations = {"students_without_recommendations": [27]}  # For history.
+
+expected_sparrowhawk = {
+  "role": "student",
+  "username": "Ged",
+  "student": {
+    "user_id": 27,
+    "student_id": 27,
+    "name_": "Ged",
+    "surname": "Sparrowhawk",
+    "email": "sparrowhawk@std.iyte.edu.tr",
+    "department": "History",
+    "is_approved": 1,
+    "has_proposed": 0,
+    "semester": 2,
+    "program_name": "History",
+    "thesis_topic": "Earthsea History Before Erreth-Akbe",
+    "graduation_status": "NA",
+    "has_dissertation": False,
+    "is_thesis_sent": 0,
+    "latest_thesis_id": -1,
+    'is_advisors_recommended': False
+  }
+}
+
