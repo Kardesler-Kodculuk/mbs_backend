@@ -10,6 +10,7 @@ from flask_jwt_extended import JWTManager, create_access_token, set_access_cooki
 from mbsbackend.blueprints.form_routes import create_form_routes
 from mbsbackend.datatypes.classes.user_classes import User_
 from mbsbackend.datatypes.classes.user_utility import convert_department, get_user
+from mbsbackend.datatypes.database import global_query_handler
 from mbsbackend.external_services.plagiarism_api import PlagiarismManager
 from mbsbackend.server_internals.authentication import authenticate
 from mbsbackend.server_internals.consants import version_number
@@ -25,7 +26,7 @@ def create_app() -> Flask:
     app = Flask(__name__)  # Create the app object.
     jwt = JWTManager(app)
     plagiarism_api = PlagiarismManager()
-    CORS(app,  supports_credentials=True)
+    CORS(app, supports_credentials=True)
 
     app.config["SECRET_KEY"] = getenv("FLASK_SECRET_KEY", urandom(24))
     app.config['JWT_AUTH_URL_RULE'] = '/jwt'
@@ -62,5 +63,14 @@ def create_app() -> Flask:
             return response
         except(RuntimeError, KeyError):
             return response
+
+    if version_number.startswith('0'):
+        @app.route('/system/reset', methods=['GET'])
+        def reset_database_state():
+            """
+            Reset the database state to the original testing version.
+                this is only active in versions <1.0.0 which are test versions.
+            """
+            global_query_handler.reset_database()
 
     return app

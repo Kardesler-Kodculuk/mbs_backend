@@ -3,7 +3,7 @@ This module contains functions and classes that connect to the
     database.
 """
 from abc import abstractmethod, ABC
-from os import getenv
+from os import getenv, remove
 from os.path import exists
 import sqlite3
 from typing import Optional, Any, Dict, List, Union
@@ -65,6 +65,7 @@ class TestQueryHandler(QueryHandler):
     Class that handles queries in the testing environment.
     """
     def __init__(self, db_name) -> None:
+        self.db_name = db_name
         is_init = exists(db_name)  # Check if the database was initialised.
         conn: sqlite3.Connection = sqlite3.connect(db_name, check_same_thread=False)
         cur: sqlite3.Cursor = conn.cursor()
@@ -72,6 +73,19 @@ class TestQueryHandler(QueryHandler):
             with open("init_test_database.sql") as script_f:  # Initialise the database.
                 cur.executescript(script_f.read())
         super().__init__(conn, cur, True)  # Locks are necessary for SQLite databases.
+
+    def reset_database(self) -> None:
+        """
+        Reset the database to its original state.
+        """
+        self.lock.acquire()
+        self.connection.close()
+        remove(self.db_name)  # Remove the file.
+        self.connection = sqlite3.connect(self.db_name, check_same_thread=False)  # Reconnect.
+        self.cursor = self.connection.cursor()
+        with open('init_test_database.sql') as script_f:
+            self.cursor.executescript(script_f.read())  # Reinitialise the database.
+        self.lock.release()  # Release the lock.
 
     def last_inserted_row_id(self) -> int:
         return self.cursor.lastrowid
