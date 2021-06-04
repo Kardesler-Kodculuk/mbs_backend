@@ -41,6 +41,6 @@ def create_form_routes() -> Blueprint:
             return send_file(os.path.join(os.getcwd(), form_functions[form_id](student)),
                              mimetype='application/vnd.openxmlformats-officedocument.wordprocessingml.document',
                              as_attachment=True,
-                             attachment_filename=OBSApi.get_student_id(student.email) + f' Form {form_id}.pdf')
+                             attachment_filename=OBSApi.get_student_id(student.email) + f' Form {form_id}.docx')
 
     return form_blueprint
