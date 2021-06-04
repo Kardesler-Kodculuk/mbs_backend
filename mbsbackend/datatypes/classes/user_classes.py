@@ -223,6 +223,17 @@ class Student(User_):
             return -1
 
     @property
+    def latest_thesis_name(self) -> str:
+        """
+        Generate thesis name from the filename.
+        """
+        latest_thesis: Thesis = Thesis.fetch(self.latest_thesis_id)
+        file_name = latest_thesis.original_name
+        name_proper, extension = file_name.split('.')
+        name_capitalised_and_parsed = ' '.join(map(lambda str_: str_.capitalize(), name_proper.split('_')))
+        return name_capitalised_and_parsed
+
+    @property
     def dissertation_info(self) -> Optional[dict]:
         """
         Return Student's Dissertation information and
