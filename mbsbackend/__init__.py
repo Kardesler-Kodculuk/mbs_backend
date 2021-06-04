@@ -64,7 +64,7 @@ def create_app() -> Flask:
         except(RuntimeError, KeyError):
             return response
 
-    if version_number.startswith('0'):
+    if version_number.startswith('v0'):
         @app.route('/system/reset', methods=['GET'])
         def reset_database_state():
             """
