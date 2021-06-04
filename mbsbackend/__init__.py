@@ -64,14 +64,4 @@ def create_app() -> Flask:
         except(RuntimeError, KeyError):
             return response
 
-    if version_number.startswith('v0'):
-        @app.route('/system/reset', methods=['GET'])
-        def reset_database_state():
-            """
-            Reset the database state to the original testing version.
-                this is only active in versions <1.0.0 which are test versions.
-            """
-            global_query_handler.reset_database()
-            return {"msg": "Reset OK."}, 204
-
     return app
