@@ -68,7 +68,7 @@ expected_student_advisor = {
     "has_dissertation": False,
     "is_thesis_sent": 0,
     "latest_thesis_id": -1,
-    'is_advisors_recommended': False
+    'is_advisors_recommended': True
   },
   "advisor": {
     "user_id": 1,
@@ -98,7 +98,7 @@ expected_student_get_0 = {
     "has_dissertation": False,
     "is_thesis_sent": 0,
     "latest_thesis_id": -1,
-    'is_advisors_recommended': False
+    'is_advisors_recommended': True
 }
 
 expected_advisor_get_1 = {

@@ -194,6 +194,13 @@ class Student(User_):
         return recommendations  # Return the list.
 
     @property
+    def proposals(self) -> List[Proposal]:
+        proposals: List[Proposal] = []
+        if Proposal.has_where('student_id', self.student_id):
+            proposals.extend(Proposal.fetch_where('student_id', self.student_id))
+        return proposals
+
+    @property
     def theses(self) -> List["Thesis"]:
         """
         Return the list of Theses uploaded by this

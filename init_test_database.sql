@@ -283,3 +283,6 @@ INSERT INTO Student VALUES (26, TRUE, TRUE, 2, 'Computer Engineering', 'Artifici
 INSERT INTO Instructor VALUES (6, 26, 16);
 INSERT INTO Thesis VALUES (2, 'theses/bob_nathan_thesis.pdf', 'bob_nathan_thesis.pdf', 10, 'Artificial Intelligence', 1621129275);
 INSERT INTO Has VALUES (2, 2, 26); /** Add another example thesis.*/
+
+INSERT INTO User_ VALUES (27, 'Ged', 'Sparrowhawk', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'sparrowhawk@std.iyte.edu.tr', 1);
+INSERT INTO Student VALUES (27, TRUE, TRUE, 2, 'History', 'Earthsea History Before Erreth-Akbe', 'NA', FALSE);
