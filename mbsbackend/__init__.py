@@ -72,5 +72,6 @@ def create_app() -> Flask:
                 this is only active in versions <1.0.0 which are test versions.
             """
             global_query_handler.reset_database()
+            return {"msg": "Reset OK."}, 204
 
     return app
