@@ -1,6 +1,6 @@
 # MBS Backend
 
-[![Python 3.7+](https://img.shields.io/badge/python-3.7+-blue.svg)](https://www.python.org/downloads/release/python-370/)
+[![Python 3.7+](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/release/python-370/)
 [![build](https://github.com/Kardesler-Kodculuk/mbs_backend/actions/workflows/python-app.yml/badge.svg)](https://github.com/Kardesler-Kodculuk/mbs_backend/actions/workflows/python-app.yml)
 [![Read Documentation](https://img.shields.io/badge/Documentation-API%20Reference-informational?logo=flask)](https://mbsbackend.docs.apiary.io/#)
 
@@ -10,7 +10,7 @@ This is the Backend Portion of the MBS Project. It is written with the Framework
 and must have added the scripts to the Path, in linux, this is handled simply by:
 
 ```
-sudo apt install python3.7
+sudo apt install python3.9
 ```
 
 In Windows, I believe the installer takes care of this itself. If you have installed Python anytime
@@ -65,9 +65,3 @@ flask run
 ```
 
 In your directory. (Don't forget to activate your virtual environment if you have installed it!) As the project continues, the run instructions may change.
-
-### Features to Use
-
-Since we are using Python 3.7+, you can safely use any feature of Python that was introduced
-before and up to Python 3.7, this includes `dataclasses` package and `Typing` package, but
-excludes type hinting with primitive types and the walrus operator.
