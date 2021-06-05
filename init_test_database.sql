@@ -317,3 +317,13 @@ INSERT INTO Dissertation VALUES (5, 1621129275, TRUE); /** Add a dissertation. *
 INSERT INTO Defending VALUES (5, 5, 32);
 INSERT INTO Member VALUES (9, 5, 20);
 INSERT INTO Member VALUES (10, 5, 30);
+
+INSERT INTO User_ VALUES (33, 'Denise', 'Oulard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'oulard@std.iyte.edu.tr', 0);
+INSERT INTO Student VALUES (33, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', TRUE);
+INSERT INTO Instructor(student_id, advisor_id) VALUES (33, 30);
+INSERT INTO Thesis VALUES (5, 'theses/example_thesis_copy3.pdf', 'example_thesis3.pdf', 15, 'Artificial Intelligence', 1621129273);
+INSERT INTO Has VALUES (5, 5, 33); /** Add an example thesis.*/
+INSERT INTO Dissertation VALUES (6, 1620129275, FALSE); /** Add a dissertation. */
+INSERT INTO Defending VALUES (6, 6, 33);
+INSERT INTO Member VALUES (11, 6, 20);
+INSERT INTO Member VALUES (12, 6, 30);
