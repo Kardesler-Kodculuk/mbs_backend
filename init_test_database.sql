@@ -316,4 +316,4 @@ INSERT INTO Has VALUES (4, 4, 32); /** Add an example thesis.*/
 INSERT INTO Dissertation VALUES (5, 1621129275, TRUE); /** Add a dissertation. */
 INSERT INTO Defending VALUES (5, 5, 32);
 INSERT INTO Member VALUES (9, 5, 20);
-INSERT INTO Member VALUES (10, 5, 31);
+INSERT INTO Member VALUES (10, 5, 30);
