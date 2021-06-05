@@ -12,4 +12,4 @@ class PlagiarismManager:
         A function that returns the same value for the same
             filepath, normally this would return the ratio of plagiarism.
         """
-        return round(sum(md5(filepath.encode('ascii')).digest()) / 100)
+        return round((sum(md5(filepath.encode('ascii')).digest()) % 100) / 100)

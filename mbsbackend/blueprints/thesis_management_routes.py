@@ -102,7 +102,7 @@ def create_thesis_management_routes(plagiarism_api: PlagiarismManager) -> Bluepr
         filename = secure_filename(file.filename)
         file_path = os.path.join('theses/', uuid.uuid4().hex)
         file.save(file_path)  # Save to theses directory.
-        new_thesis_metadata = Thesis(-1, file_path, filename, plagiarism_api.get_plagiarism_ratio(file_path),
+        new_thesis_metadata = Thesis(-1, file_path, filename, plagiarism_api.get_plagiarism_ratio(filename),
                                      student.thesis_topic, round(time.time()))
         new_thesis_metadata.create()
         new_ownership = Has(-1, new_thesis_metadata.thesis_id, student.student_id)

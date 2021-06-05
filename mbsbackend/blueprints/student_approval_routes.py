@@ -54,7 +54,7 @@ def create_student_approval_routes() -> Blueprint:
             acceptable_fields = [field for field in payload if
                                  field not in forbidden_fields["StudentAdvisor"] and field in Student.__dataclass_fields__]
             if 'is_thesis_sent' in payload and Thesis.fetch(student.latest_thesis_id).plagiarism_ratio >= 20:
-                return {"msg": "Cannot submit thesis with plagiarism ratio larger than 20 percent."}, 409
+                return {"msg": "Cannot submit thesis with plagiarism ratio larger than 15 percent."}, 409
             if 'thesis_topic' in payload and student.is_thesis_sent:
                 return {"msg": "Cannot change thesis topic after submitting thesis."}, 409
             for field in acceptable_fields:
