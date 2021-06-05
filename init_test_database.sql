@@ -208,7 +208,7 @@ INSERT INTO Proposal VALUES (5, 13, 9);
 INSERT INTO Proposal VALUES (6, 14, 9);
 
 INSERT INTO User_ VALUES (15, 'Sophia', 'Leonides', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'leonides@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (15, FALSE, FALSE, 2, 'Computer Engineering', 'Graphic Acceleration', 'NA', FALSE);
+INSERT INTO Student VALUES (15, FALSE, FALSE, 2, 'Computer Engineering', NULL, 'NA', FALSE);
 
 INSERT INTO Recommended VALUES (2, 15, 9);
 
