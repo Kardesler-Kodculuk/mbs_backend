@@ -199,24 +199,6 @@ class TestProposeAlreadyAdvisor(flask_unittest.ClientTestCase):
         self.assertStatus(resp, 409)
 
 
-class TestProposeStudentWithoutThesis(flask_unittest.ClientTestCase):
-
-    app = create_app()
-
-    def setUp(self, client: FlaskClient) -> None:
-        client.post('/jwt', json={"username": "leonides@std.iyte.edu.tr", "password": "test+7348"})
-        self.maxDiff = None
-
-    def tearDown(self, client: FlaskClient) -> None:
-        client.delete('/jwt')  # Logout.
-
-    def test_propose_to_without_thesis(self, client: FlaskClient) -> None:
-        """
-        Attempt to propose to a valid advisor without valid thesis topic.
-        """
-        resp = client.post('proposals', json={"advisor_id": 9})  # Let us propose to Bouwman.
-        self.assertStatus(resp, 409)
-
 
 class TestProposeWithoutAdvisorID(flask_unittest.ClientTestCase):
     """
