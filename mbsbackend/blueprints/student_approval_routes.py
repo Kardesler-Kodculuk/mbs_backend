@@ -2,6 +2,8 @@ from typing import Tuple, Union
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, current_user
 from dataclasses import asdict
+
+from mbsbackend.datatypes.classes.thesis_classes import Thesis
 from mbsbackend.datatypes.classes.user_classes import Student, Advisor, Jury, DBR
 from mbsbackend.datatypes.classes.user_relationships import Proposal
 from mbsbackend.datatypes.classes.user_utility import get_user
@@ -51,6 +53,8 @@ def create_student_approval_routes() -> Blueprint:
             payload = request.json
             acceptable_fields = [field for field in payload if
                                  field not in forbidden_fields["StudentAdvisor"] and field in Student.__dataclass_fields__]
+            if 'is_thesis_sent' in payload and Thesis.fetch(student.latest_thesis_id).plagiarism_ratio >= 20:
+                return {"msg": "Cannot submit thesis with plagiarism ratio larger than 20 percent."}, 409
             for field in acceptable_fields:
                 setattr(student, field, payload[field])  # Update the field of the user.
             student.update()  # Update it in the database.
