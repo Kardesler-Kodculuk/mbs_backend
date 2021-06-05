@@ -1,7 +1,7 @@
 """
 This file includes the app routes.
 """
-from typing import Tuple
+from typing import Tuple, List
 from flask import request, Blueprint
 from flask_jwt_extended import jwt_required, current_user
 from mbsbackend.datatypes.classes.user_classes import Student, Advisor, DBR, Jury
@@ -25,7 +25,11 @@ def create_dissertation_routes():
         advisor = current_user.downcast()
         if not isinstance(advisor, Advisor):
             return {"msg": "Only advisor can view the jury member list."}, 403
-        jury_members = Advisor.fetch_where('department_id', advisor.department_id)
+        advisors: List[Advisor] = Advisor.fetch_where('department_id', advisor.department_id)
+        for advisor in advisors:
+            if not advisor.jury_credentials:
+                advisor.create_jury()
+        jury_members = advisors
         outside_jury_members = Jury.fetch_where('department_id', 2)  # Out of faculty members are given 2 by tradition.
         jury_members.extend(outside_jury_members)
         return {"jury_members": [jury.user_id for jury in jury_members]}, 200
