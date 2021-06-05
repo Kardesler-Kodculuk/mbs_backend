@@ -142,7 +142,7 @@ class Jury(User_):
 
     @classmethod
     def add_new_jury(cls, req, dep_id):
-        user_args = [-1, req['name_'], req['surname'], "", req['email'], dep_id]
+        user_args = [-1, req['name_'], req['surname'], "$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg", req['email'], dep_id]
         jury_args = [-1, False, req['institution'], req['phone_number'], True]
         user = User_(*user_args)
         user.create()
