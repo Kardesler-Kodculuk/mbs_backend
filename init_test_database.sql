@@ -218,7 +218,7 @@ INSERT INTO USER_ VALUES (16, 'Ariadne', 'Oliver', '$pbkdf2-sha256$29000$xNh7j3H
 INSERT INTO Advisor VALUES (16, 'Character Encoding');
 INSERT INTO Jury VALUES (16, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 INSERT INTO User_ VALUES (17, 'Jane', 'Grey', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'grey@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (17, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', FALSE);
+INSERT INTO Student VALUES (17, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', TRUE);
 INSERT INTO Thesis VALUES (0, 'theses/grey_thesis_example0.pdf', 'grey_thesis_example0.pdf', 15, 'Artificial Intelligence', 1621129273);
 INSERT INTO Has VALUES (0, 0, 17); /** Add an example thesis.*/
 INSERT INTO Thesis VALUES (1, 'theses/grey_thesis_example1.pdf', 'grey_thesis_example1.pdf', 10, 'Artificial Intelligence', 1621129275);
@@ -299,7 +299,7 @@ INSERT INTO Advisor VALUES (30, 'Computer Chess');
 INSERT INTO JURY VALUES (30, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 
 INSERT INTO User_ VALUES (31, 'Jack', 'Renauld', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'renauld@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (31, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', FALSE);
+INSERT INTO Student VALUES (31, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', TRUE);
 INSERT INTO Thesis VALUES (3, 'theses/example_thesis_copy.pdf', 'example_thesis.pdf', 15, 'Artificial Intelligence', 1621129273);
 INSERT INTO Instructor(student_id, advisor_id) VALUES (31, 30);
 INSERT INTO Has VALUES (3, 3, 31); /** Add an example thesis.*/
@@ -309,7 +309,7 @@ INSERT INTO Member VALUES (7, 4, 20);
 INSERT INTO Member VALUES (8, 4, 30);
 
 INSERT INTO User_ VALUES (32, 'Denise', 'Oulard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'oulard@std.iyte.edu.tr', 0);
-INSERT INTO Student VALUES (32, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', FALSE);
+INSERT INTO Student VALUES (32, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', TRUE);
 INSERT INTO Instructor(student_id, advisor_id) VALUES (32, 30);
 INSERT INTO Thesis VALUES (4, 'theses/example_thesis_copy2.pdf', 'example_thesis2.pdf', 15, 'Artificial Intelligence', 1621129273);
 INSERT INTO Has VALUES (4, 4, 32); /** Add an example thesis.*/
