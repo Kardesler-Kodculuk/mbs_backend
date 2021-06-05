@@ -315,7 +315,7 @@ expected_sparrowhawk = {
     "surname": "Sparrowhawk",
     "email": "sparrowhawk@std.iyte.edu.tr",
     "department": "History",
-    "is_approved": 1,
+    "is_approved": 0,
     "has_proposed": 0,
     "semester": 2,
     "program_name": "History",
