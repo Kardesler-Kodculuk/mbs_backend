@@ -98,6 +98,8 @@ def create_thesis_management_routes(plagiarism_api: PlagiarismManager) -> Bluepr
             return {"msg": "Not authorised for this action."}, 403
         elif 'file' not in request.files:
             return {"msg": "Files must contain a file with key file."}, 400
+        elif not student.is_approved:
+            return {"msg": "Cannot upload thesis without having an approved advisor."}, 409
         file = request.files['file']
         filename = secure_filename(file.filename)
         file_path = os.path.join('theses/', uuid.uuid4().hex)

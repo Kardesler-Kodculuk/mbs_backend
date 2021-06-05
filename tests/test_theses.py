@@ -145,34 +145,6 @@ class TestDeleteThesis(flask_unittest.ClientTestCase):
             self.assertIsNone(cur.fetchone())
 
 
-class TestLastThesisDelete(flask_unittest.ClientTestCase):
-    """
-    Test if deleting the student's last thesis breaks the code.
-    """
-    app = create_app()
-
-    def setUp(self, client: FlaskClient) -> None:
-        client.post('/jwt', json={'username': 'sparrowhawk@std.iyte.edu.tr', 'password': 'test+7348'})
-        self.maxDiff = None
-
-    def tearDown(self, client: FlaskClient) -> None:
-        client.delete('/jwt')
-
-    def test_delete_last_thesis(self, client: FlaskClient) -> None:
-        data = {}
-        with open('tests/example_pdfs/grey_thesis_upload_example.pdf', 'rb') as fp:
-            data['file'] = (fp, 'grey_thesis_upload_example.pdf')
-            resp = client.post('/theses', content_type='multipart/form-data',
-                               data=data)  # We are expecting a list of thesis ids.
-        # Now that we have uploaded the thesis, let us delete it.
-        thesis_id = resp.json['thesis_id']
-        resp = client.delete(f'/theses/{thesis_id}')
-        self.assertStatus(resp, 204)  # Assert that we have successfully deleted it.
-        resp = client.get('/users')
-        self.assertDictEqual(expected_sparrowhawk, resp.json)
-
-
-
 class TestLatestThesisID(flask_unittest.ClientTestCase):
     """
     Test if the student's latest_thesis_id field is functioning correctly.
