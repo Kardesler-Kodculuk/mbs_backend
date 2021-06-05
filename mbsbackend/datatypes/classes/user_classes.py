@@ -113,7 +113,7 @@ class Advisor(User_):
         """
         Make the advisor a Jury member as well.
         """
-        values = [-1,  "", "", "", "", -1, self.advisor_id, False, "Izmir Institute of Technology",
+        values = [self.advisor_id, False, "Izmir Institute of Technology",
                         "+90 5XX XXX XX XX", False]
         Jury.create_unique(values)
 
