@@ -292,9 +292,11 @@ INSERT INTO Student VALUES (28, FALSE, FALSE, 2, 'Computer Engineering', 'Advanc
 
 INSERT INTO User_ VALUES (29, 'Emily', 'Inglethorp', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'inglethorp@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (29, 'Bioinformatics');
+INSERT INTO JURY VALUES (29, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 
 INSERT INTO User_ VALUES (30, 'Evelyn', 'Howard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'howard@iyte.edu.tr', 0);
 INSERT INTO Advisor VALUES (30, 'Computer Chess');
+INSERT INTO JURY VALUES (30, TRUE, 'Izmir Institute of Technology', '+90 5XX XXX XX XX', FALSE);
 
 INSERT INTO User_ VALUES (31, 'Jack', 'Renauld', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'renauld@std.iyte.edu.tr', 0);
 INSERT INTO Student VALUES (31, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', FALSE);
