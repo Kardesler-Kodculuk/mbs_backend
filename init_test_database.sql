@@ -306,7 +306,7 @@ INSERT INTO Has VALUES (3, 3, 31); /** Add an example thesis.*/
 INSERT INTO Dissertation VALUES (4, 1621129275, TRUE); /** Add a dissertation. */
 INSERT INTO Defending VALUES (4, 4, 31);
 INSERT INTO Member VALUES (7, 4, 20);
-INSERT INTO Member VALUES (8, 4, 31);
+INSERT INTO Member VALUES (8, 4, 30);
 
 INSERT INTO User_ VALUES (32, 'Denise', 'Oulard', '$pbkdf2-sha256$29000$xNh7j3HunXMuxRgDAGBMyQ$Z8D9vpTaauX/jIxrgxtCkba83F/rVI1LeYAtpHCIhRg', 'oulard@std.iyte.edu.tr', 0);
 INSERT INTO Student VALUES (32, TRUE, TRUE, 2, 'Computer Engineering', 'Artificial Intelligence', 'NA', FALSE);
